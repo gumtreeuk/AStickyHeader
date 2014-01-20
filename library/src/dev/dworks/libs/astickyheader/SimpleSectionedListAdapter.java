@@ -21,7 +21,6 @@ import java.util.Comparator;
 
 import android.content.Context;
 import android.database.DataSetObserver;
-import android.util.Log;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -172,7 +171,6 @@ public class SimpleSectionedListAdapter extends BaseAdapter implements PinnedSec
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        Log.v( "getView", "get view for " + position );
         if (isSectionHeaderPosition(position)) {
         	TextView view;
         	if(null == convertView){
@@ -187,8 +185,6 @@ public class SimpleSectionedListAdapter extends BaseAdapter implements PinnedSec
             view.setText(mSections.get(position).title);
             return convertView;
         } else {
-            Log.v( "getView", "asking wrapped adapter for view  " + position + " sectioned position : " +
-                           sectionedPositionToPosition(position));
             return mBaseAdapter.getView(sectionedPositionToPosition(position), convertView, parent);
         }
     }
