@@ -27,8 +27,6 @@ import android.widget.AbsListView;
 import android.widget.GridView;
 import android.widget.ListAdapter;
 import android.widget.SectionIndexer;
-import dev.dworks.libs.astickyheader.BuildConfig;
-import dev.dworks.libs.astickyheader.R;
 
 /**
  * ListView capable to pin views at its top while the rest is still scrolled.
@@ -126,7 +124,7 @@ public class PinnedSectionGridView extends GridView {
 			}
 			
 			// get expected adapter or fail
-			PinnedSectionGridAdapter adapter = (PinnedSectionGridAdapter) view.getAdapter();
+			PinnedSectionGridAdapter adapter = (PinnedSectionGridAdapter)view.getAdapter();
 			if (adapter == null || visibleItemCount == 0) return; // nothing to do
 			
 			int visibleSectionPosition = findFirstVisibleSectionPosition(firstVisibleItem, visibleItemCount);
@@ -222,8 +220,10 @@ public class PinnedSectionGridView extends GridView {
 		
 		// request new view
 		View pinnedView = getAdapter().getView(position, recycleView, PinnedSectionGridView.this);
-		HeaderLayout header = (HeaderLayout) pinnedView.findViewById(R.id.header_layout);
-		header.setHeaderWidth(1);
+        //TODO
+		//HeaderLayout header = (HeaderLayout) pinnedView.findViewById(R.id.header_layout);
+		//header.setHeaderWidth(1);
+        //TODO
 		pinnedView.setBackgroundColor(Color.WHITE);
 		// read layout parameters
 		LayoutParams layoutParams = (LayoutParams) pinnedView.getLayoutParams();
@@ -336,15 +336,6 @@ public class PinnedSectionGridView extends GridView {
 	
 	@Override
 	public void setAdapter(ListAdapter adapter) {
-		
-	    // assert adapter in debug mode
-		if (BuildConfig.DEBUG && adapter != null) {
-			if (!(adapter instanceof PinnedSectionGridAdapter))
-				throw new IllegalArgumentException("Does your adapter implement PinnedSectionGridAdapter?");
-			if (adapter.getViewTypeCount() < 2)
-				throw new IllegalArgumentException("Does your adapter handle at least two types of views - items and sections?");
-		}
-
 		// unregister observer at old adapter and register on new one
 		ListAdapter currentAdapter = getAdapter();
 		if (currentAdapter != null) {

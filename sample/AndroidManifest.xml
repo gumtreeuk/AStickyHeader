@@ -5,7 +5,7 @@
     android:versionName="1.1" >
 
     <uses-sdk
-        android:minSdkVersion="8"
+        android:minSdkVersion="14"
         android:targetSdkVersion="19" />
 
     <application
@@ -35,6 +35,10 @@
         <activity
             android:name="dev.dworks.libs.astickyheader.demo.ListActivity"
             android:label="@string/title_activity_list" >
+        </activity>
+        <activity
+                android:name="dev.dworks.libs.astickyheader.demo.ListWithHeaderActivity"
+                android:label="@string/title_activity_headered_list" >
         </activity>
         <activity
             android:name="dev.dworks.libs.astickyheader.demo.GridActivity"

@@ -21,6 +21,7 @@ import java.util.Comparator;
 
 import android.content.Context;
 import android.database.DataSetObserver;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -41,17 +42,18 @@ public class SimpleSectionedGridAdapter extends BaseAdapter implements PinnedSec
 	protected static final int TYPE_HEADER_FILLER = 2;
     private boolean mValid = true;
     private int mSectionResourceId;
+    private int mHeaderId;
+    private int mHeaderLayoutId;
     private LayoutInflater mLayoutInflater;
     private ListAdapter mBaseAdapter;
     private SparseArray<Section> mSections = new SparseArray<Section>();
 	private Context mContext;
-//	private View mLastHeaderViewSeen;
 	private View mLastViewSeen;
 	private int mNumColumns;
 	private int mWidth;
 	private int mColumnWidth;
 	private int mHorizontalSpacing;
-	private int mStrechMode;
+	private int mStretchMode;
 	private int requestedColumnWidth;
 	private int requestedHorizontalSpacing;
 	private GridView mGridView;
@@ -72,11 +74,14 @@ public class SimpleSectionedGridAdapter extends BaseAdapter implements PinnedSec
         }
     }
 
-    public SimpleSectionedGridAdapter(Context context, int sectionResourceId, BaseAdapter baseAdapter) {
+    public SimpleSectionedGridAdapter(Context context, int sectionResourceId, int headerId,
+                                      int headerLayoutId, BaseAdapter baseAdapter) {
         mLayoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         mSectionResourceId = sectionResourceId;
         mBaseAdapter = baseAdapter;
         mContext = context;
+        this.mHeaderId = headerId;
+        this.mHeaderLayoutId = headerLayoutId;
         mBaseAdapter.registerDataSetObserver(new DataSetObserver() {
             @Override
             public void onChanged() {
@@ -97,25 +102,25 @@ public class SimpleSectionedGridAdapter extends BaseAdapter implements PinnedSec
     		throw new IllegalArgumentException("Does your grid view extends PinnedSectionGridView?");
     	}
     	mGridView = gridView;
-    	mStrechMode = gridView.getStretchMode();
+    	mStretchMode = gridView.getStretchMode();
     	mWidth = gridView.getWidth() - (mGridView.getPaddingLeft() + mGridView.getPaddingRight());
-        mNumColumns = ((PinnedSectionGridView)gridView).getNumColumns();
-        requestedColumnWidth = ((PinnedSectionGridView)gridView).getColumnWidth();
-    	requestedHorizontalSpacing = ((PinnedSectionGridView)gridView).getHorizontalSpacing();
+        mNumColumns = gridView.getNumColumns();
+        requestedColumnWidth = gridView.getColumnWidth();
+    	requestedHorizontalSpacing = gridView.getHorizontalSpacing();
     }
     
     private int getHeaderSize(){
     	if(mWidth != mGridView.getWidth()){
-	    	mStrechMode = mGridView.getStretchMode();
+	    	mStretchMode = mGridView.getStretchMode();
 	    	mWidth = mGridView.getWidth() - (mGridView.getPaddingLeft() + mGridView.getPaddingRight());
-	        mNumColumns = ((PinnedSectionGridView)mGridView).getNumColumns();
-	        requestedColumnWidth = ((PinnedSectionGridView)mGridView).getColumnWidth();
-	    	requestedHorizontalSpacing = ((PinnedSectionGridView)mGridView).getHorizontalSpacing();
+	        mNumColumns = mGridView.getNumColumns();
+	        requestedColumnWidth = mGridView.getColumnWidth();
+	    	requestedHorizontalSpacing = mGridView.getHorizontalSpacing();
     	}
     	
         int spaceLeftOver = mWidth - (mNumColumns * requestedColumnWidth) -
                 ((mNumColumns - 1) * requestedHorizontalSpacing);
-        switch (mStrechMode) {
+        switch (mStretchMode) {
         case GridView.NO_STRETCH:            // Nobody stretches
         	mWidth -= spaceLeftOver;
             mColumnWidth = requestedColumnWidth;
@@ -289,21 +294,20 @@ public class SimpleSectionedGridAdapter extends BaseAdapter implements PinnedSec
         		convertView = mLayoutInflater.inflate(mSectionResourceId, parent, false);
         	}
         	else{
-        		if(null == convertView.findViewById(R.id.header_layout)){
+        		if(null == convertView.findViewById(mHeaderLayoutId)){
         			convertView = mLayoutInflater.inflate(mSectionResourceId, parent, false);	
         		}
         	}
 			switch (mSections.get(position).type) {
 			case TYPE_HEADER:
-				header = (HeaderLayout) convertView.findViewById(R.id.header_layout);
-				view = (TextView) convertView.findViewById(R.id.header);
+				header = (HeaderLayout) convertView.findViewById(mHeaderLayoutId);
+				view = (TextView) convertView.findViewById(mHeaderId);
 	            view.setText(mSections.get(position).title);
 	            header.setHeaderWidth(getHeaderSize());
-	            //view.setBackgroundColor(Color.BLUE);
 	            break;
 			case TYPE_HEADER_FILLER:
-				header = (HeaderLayout) convertView.findViewById(R.id.header_layout);
-				view = (TextView) convertView.findViewById(R.id.header);
+				header = (HeaderLayout) convertView.findViewById(mHeaderLayoutId);
+				view = (TextView) convertView.findViewById(mHeaderId);
 	            view.setText("");
 	            header.setHeaderWidth(0);
 				break;

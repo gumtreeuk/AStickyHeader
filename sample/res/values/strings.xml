@@ -13,6 +13,7 @@
     <string name="action_settings">Settings</string>
     <string name="title_activity_grid">Sticky Grid Headers</string>
     <string name="title_activity_list">Sticky List Headers</string>
+    <string name="title_activity_headered_list">Sticky List Headers on list with header already</string>
     <string name="hello_world">Hello world!</string>
 
 </resources>

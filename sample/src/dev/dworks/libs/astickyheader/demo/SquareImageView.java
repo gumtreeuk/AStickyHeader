@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package dev.dworks.libs.astickyheader.ui;
+package dev.dworks.libs.astickyheader.demo;
 
 import android.content.Context;
 import android.util.AttributeSet;
