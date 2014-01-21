@@ -16,9 +16,6 @@
 
 package dev.dworks.libs.astickyheader;
 
-import java.util.Arrays;
-import java.util.Comparator;
-
 import android.content.Context;
 import android.database.DataSetObserver;
 import android.util.SparseArray;
@@ -29,6 +26,9 @@ import android.widget.BaseAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import java.util.Arrays;
+import java.util.Comparator;
 
 import dev.dworks.libs.astickyheader.ui.PinnedSectionListView.PinnedSectionListAdapter;
 
@@ -42,6 +42,7 @@ public class SimpleSectionedListAdapter extends BaseAdapter implements PinnedSec
     private SparseArray<Section> mSections = new SparseArray<Section>();
 
     public static class Section {
+
         int firstPosition;
         int sectionedPosition;
         CharSequence title;
@@ -57,12 +58,12 @@ public class SimpleSectionedListAdapter extends BaseAdapter implements PinnedSec
     }
 
     public SimpleSectionedListAdapter(Context context, int sectionResourceId, int headerId,
-            BaseAdapter baseAdapter) {
-        mLayoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                                      BaseAdapter baseAdapter) {
+        mLayoutInflater = (LayoutInflater) context.getSystemService( Context.LAYOUT_INFLATER_SERVICE );
         mSectionResourceId = sectionResourceId;
         mBaseAdapter = baseAdapter;
         mHeaderId = headerId;
-        mBaseAdapter.registerDataSetObserver(new DataSetObserver() {
+        mBaseAdapter.registerDataSetObserver( new DataSetObserver() {
             @Override
             public void onChanged() {
                 mValid = !mBaseAdapter.isEmpty();
@@ -74,36 +75,36 @@ public class SimpleSectionedListAdapter extends BaseAdapter implements PinnedSec
                 mValid = false;
                 notifyDataSetInvalidated();
             }
-        });
+        } );
     }
 
     public void setSections(Section[] sections) {
         mSections.clear();
         notifyDataSetChanged();
-        Arrays.sort(sections, new Comparator<Section>() {
+        Arrays.sort( sections, new Comparator<Section>() {
             @Override
             public int compare(Section o, Section o1) {
-                return (o.firstPosition == o1.firstPosition) ? 0: ((o.firstPosition < o1.firstPosition) ? -1 : 1);
+                return (o.firstPosition == o1.firstPosition) ? 0 : ((o.firstPosition < o1.firstPosition) ? -1 : 1);
             }
-        });
+        } );
 
         int offset = 0; // offset positions for the headers we're adding
         for (Section section : sections) {
             section.sectionedPosition = section.firstPosition + offset;
-            mSections.append(section.sectionedPosition, section);
+            mSections.append( section.sectionedPosition, section );
             ++offset;
         }
         notifyDataSetChanged();
     }
 
     public int sectionedPositionToPosition(int sectionedPosition) {
-        if (isSectionHeaderPosition(sectionedPosition)) {
+        if (isSectionHeaderPosition( sectionedPosition )) {
             return ListView.INVALID_POSITION;
         }
 
         int offset = 0;
         for (int i = 0; i < mSections.size(); i++) {
-            if (mSections.valueAt(i).sectionedPosition > sectionedPosition) {
+            if (mSections.valueAt( i ).sectionedPosition > sectionedPosition) {
                 break;
             }
             --offset;
@@ -112,7 +113,7 @@ public class SimpleSectionedListAdapter extends BaseAdapter implements PinnedSec
     }
 
     public boolean isSectionHeaderPosition(int position) {
-        return mSections.get(position) != null;
+        return mSections.get( position ) != null;
     }
 
     @Override
@@ -122,31 +123,31 @@ public class SimpleSectionedListAdapter extends BaseAdapter implements PinnedSec
 
     @Override
     public Object getItem(int position) {
-        return isSectionHeaderPosition(position)
-                ? mSections.get(position)
-                : mBaseAdapter.getItem(sectionedPositionToPosition(position));
+        return isSectionHeaderPosition( position )
+               ? mSections.get( position )
+               : mBaseAdapter.getItem( sectionedPositionToPosition( position ) );
     }
 
     @Override
     public long getItemId(int position) {
-        return isSectionHeaderPosition(position)
-                ? Integer.MAX_VALUE - mSections.indexOfKey(position)
-                : mBaseAdapter.getItemId(sectionedPositionToPosition(position));
+        return isSectionHeaderPosition( position )
+               ? Integer.MAX_VALUE - mSections.indexOfKey( position )
+               : mBaseAdapter.getItemId( sectionedPositionToPosition( position ) );
     }
 
     @Override
     public int getItemViewType(int position) {
-        return isSectionHeaderPosition(position)
-                ? getViewTypeCount() - 1
-                : mBaseAdapter.getItemViewType(position);
+        return isSectionHeaderPosition( position )
+               ? getViewTypeCount() - 1
+               : mBaseAdapter.getItemViewType( position );
     }
 
     @Override
     public boolean isEnabled(int position) {
         //noinspection SimplifiableConditionalExpression
-        return isSectionHeaderPosition(position)
-                ? false
-                : mBaseAdapter.isEnabled(sectionedPositionToPosition(position));
+        return isSectionHeaderPosition( position )
+               ? false
+               : mBaseAdapter.isEnabled( sectionedPositionToPosition( position ) );
     }
 
     @Override
@@ -171,26 +172,25 @@ public class SimpleSectionedListAdapter extends BaseAdapter implements PinnedSec
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        if (isSectionHeaderPosition(position)) {
-        	TextView view;
-        	if(null == convertView){
-        		convertView = mLayoutInflater.inflate(mSectionResourceId, parent, false);
-        	}
-        	else{
-        		if(null == convertView.findViewById( mHeaderId )){
-        			convertView = mLayoutInflater.inflate(mSectionResourceId, parent, false);	
-        		}
-        	}
+        if (isSectionHeaderPosition( position )) {
+            TextView view;
+            if (null == convertView) {
+                convertView = mLayoutInflater.inflate( mSectionResourceId, parent, false );
+            } else {
+                if (null == convertView.findViewById( mHeaderId )) {
+                    convertView = mLayoutInflater.inflate( mSectionResourceId, parent, false );
+                }
+            }
             view = (TextView) convertView.findViewById( mHeaderId );
-            view.setText(mSections.get(position).title);
+            view.setText( mSections.get( position ).title );
             return convertView;
         } else {
-            return mBaseAdapter.getView(sectionedPositionToPosition(position), convertView, parent);
+            return mBaseAdapter.getView( sectionedPositionToPosition( position ), convertView, parent );
         }
     }
 
-	@Override
-	public boolean isItemViewTypePinned(int position) {
-		return isSectionHeaderPosition(position);
-	}
+    @Override
+    public boolean isItemViewTypePinned(int position) {
+        return isSectionHeaderPosition( position );
+    }
 }

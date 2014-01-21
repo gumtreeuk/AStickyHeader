@@ -2,6 +2,7 @@ package dev.dworks.libs.astickyheader.demo;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,7 +40,9 @@ public class ListWithHeaderActivity extends CacheActivity {
 			sections.add(new Section(mHeaderPositions[i], mHeaderNames[i]));
 		}
 		SimpleSectionedListAdapter simpleSectionedGridAdapter
-                = new SimpleSectionedListAdapter(this, R.layout.list_item_header, R.id.header, mAdapter);
+                = new SimpleSectionedListAdapter(this, R.layout.list_item_header, R.id.header, mAdapter) {
+
+        };
 		simpleSectionedGridAdapter.setSections(sections.toArray(new Section[0]));
 		list.setAdapter(simpleSectionedGridAdapter);
 	}

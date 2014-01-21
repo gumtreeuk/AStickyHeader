@@ -21,11 +21,9 @@ import android.database.DataSetObserver;
 import android.graphics.Canvas;
 import android.os.Parcelable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.Adapter;
-import android.widget.HeaderViewListAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SectionIndexer;
@@ -92,20 +90,15 @@ public class PinnedSectionListView extends ListView {
 
         @Override
         public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-
             if (mDelegateOnScrollListener != null) { // delegate
                 mDelegateOnScrollListener.onScroll( view, firstVisibleItem, visibleItemCount, totalItemCount );
             }
-
-            // get expected adapter or fail
             PinnedSectionListAdapter adapter = getPinnedAdapter( view );
             if (adapter == null || visibleItemCount == 0) {
-                return; // nothing to do
+                return;
             }
-
             int visibleSectionPosition = findFirstVisibleSectionPosition( firstVisibleItem, visibleItemCount );
             if (visibleSectionPosition == -1) { // there is no visible sections
-
                 // try to find invisible view
                 int currentSectionPosition = findCurrentSectionPosition( firstVisibleItem );
                 if (currentSectionPosition == -1) {
@@ -123,13 +116,15 @@ public class PinnedSectionListView extends ListView {
                         destroyPinnedShadow(); // destroy old pinned view
                     }
                 }
-
                 // create new pinned view for candidate
                 createPinnedShadow( currentSectionPosition );
                 return; // exit, as we have created a pinned candidate already
             }
-
-            int visibleSectionTop = view.getChildAt( visibleSectionPosition - firstVisibleItem ).getTop();
+            View childView = view.getChildAt( visibleSectionPosition - firstVisibleItem );
+            if (childView == null) {
+                return;
+            }
+            int visibleSectionTop = childView.getTop();
             int topBorder = getListPaddingTop();
 
             if (mPinnedShadow == null) {
@@ -137,8 +132,8 @@ public class PinnedSectionListView extends ListView {
                     createPinnedShadow( visibleSectionPosition );
                 }
             } else {
-
-                if (visibleSectionPosition == getPinnedShadowPosition()) {
+                int pinnedShadowPosition = getPinnedShadowPosition();
+                if (visibleSectionPosition == pinnedShadowPosition) {
                     if (visibleSectionTop > topBorder) {
                         destroyPinnedShadow();
                         visibleSectionPosition = findCurrentSectionPosition( visibleSectionPosition - 1 );
@@ -198,13 +193,16 @@ public class PinnedSectionListView extends ListView {
             //destroyPinnedShadow();
         }
 
-        ;
-
         @Override
         public void onInvalidated() {
             destroyPinnedShadow();
         }
     };
+
+    @Override
+    public ListAdapter getAdapter() {
+        return super.getAdapter();
+    }
 
     protected int getPinnedShadowPosition() {
         return mPinnedShadow.position;
@@ -214,7 +212,6 @@ public class PinnedSectionListView extends ListView {
      * Create shadow wrapper with a pinned view for a view at given position
      */
     private void createPinnedShadow(int position) {
-
         // try to recycle shadow
         PinnedViewShadow pinnedShadow = mRecycleShadow;
         View recycleView = pinnedShadow == null ? null : pinnedShadow.view;
@@ -271,11 +268,10 @@ public class PinnedSectionListView extends ListView {
         mPinnedShadow = null;
     }
 
-    private int findFirstVisibleSectionPosition(int firstVisibleItem, int visibleItemCount) {
+    protected int findFirstVisibleSectionPosition(int firstVisibleItem, int visibleItemCount) {
         PinnedSectionListAdapter adapter = getPinnedAdapter( PinnedSectionListView.this );
         for (int childIndex = 0; childIndex < visibleItemCount; childIndex++) {
             int position = firstVisibleItem + childIndex;
-            //int viewType = adapter.getItemViewType(position);
             if (adapter.isItemViewTypePinned( position )) {
                 return position;
             }
@@ -335,7 +331,6 @@ public class PinnedSectionListView extends ListView {
                 if (position == -1) {
                     return; // no views to pin, exit
                 }
-
                 if (firstVisiblePosition == position) {
                     // create pinned shadow for position
                     createPinnedShadow( firstVisiblePosition );
