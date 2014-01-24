@@ -10,6 +10,19 @@ Usage is very simple, it supports all kinds of Adapters.
 [![Get it on Google Play](http://www.android.com/images/brand/get_it_on_play_logo_small.png)](http://play.google.com/store/apps/details?id=dev.dworks.libs.astickyheader)
 
 
+Changes compare to main repo
+============
+* Adoption of maven
+
+* Library as a jar not an apk. Most of the dependencies that were required by the library (actionbarsherlock,
+layouts and resources) where not strictly necessary.
+
+* Support for dynamic adapters : useful in the case where you have a cursor and a endless adapter that changes when
+next page is requested server side
+
+* Support for list with a custom header view.
+
+
 Developed By
 ============
 
