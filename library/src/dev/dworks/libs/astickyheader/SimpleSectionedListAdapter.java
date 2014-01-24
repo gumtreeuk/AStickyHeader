@@ -47,6 +47,10 @@ public class SimpleSectionedListAdapter extends BaseAdapter implements PinnedSec
         int sectionedPosition;
         CharSequence title;
 
+        public int getFirstPosition() {
+            return firstPosition;
+        }
+
         public Section(int firstPosition, CharSequence title) {
             this.firstPosition = firstPosition;
             this.title = title;
@@ -192,5 +196,9 @@ public class SimpleSectionedListAdapter extends BaseAdapter implements PinnedSec
     @Override
     public boolean isItemViewTypePinned(int position) {
         return isSectionHeaderPosition( position );
+    }
+
+    protected ListAdapter getWrappedAdapter() {
+        return mBaseAdapter;
     }
 }
