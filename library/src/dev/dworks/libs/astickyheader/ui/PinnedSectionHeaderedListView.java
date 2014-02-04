@@ -87,7 +87,11 @@ public class PinnedSectionHeaderedListView extends PinnedSectionListView {
 
         @Override
         public View getView(int i, View view, ViewGroup viewGroup) {
-            return adapter.getView( i, view, viewGroup );
+            try {
+                return adapter.getView( i, view, viewGroup );
+            } catch (IndexOutOfBoundsException iob) {
+                return null;
+            }
         }
 
         @Override

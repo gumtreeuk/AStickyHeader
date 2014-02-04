@@ -95,6 +95,9 @@ public class PinnedSectionListView extends ListView {
             }
             PinnedSectionListAdapter adapter = getPinnedAdapter( view );
             if (adapter == null || visibleItemCount == 0) {
+                if (firstVisibleItem == 0) {
+                    destroyPinnedShadow();
+                }
                 return;
             }
             int visibleSectionPosition = findFirstVisibleSectionPosition( firstVisibleItem, visibleItemCount );
@@ -190,7 +193,10 @@ public class PinnedSectionListView extends ListView {
                     createPinnedShadow( getPinnedShadowPosition() );
                 }
             }
-            //destroyPinnedShadow();
+            if (mPinnedShadow != null) {
+                //createPinnedShadow( 0 );
+                destroyPinnedShadow();
+            }
         }
 
         @Override
@@ -219,6 +225,9 @@ public class PinnedSectionListView extends ListView {
 
         // request new view
         View pinnedView = getAdapter().getView( position, recycleView, PinnedSectionListView.this );
+        if (pinnedView == null) {
+            return;
+        }
         // read layout parameters
         LayoutParams layoutParams = (LayoutParams) pinnedView.getLayoutParams();
 
@@ -281,6 +290,9 @@ public class PinnedSectionListView extends ListView {
 
     private int findCurrentSectionPosition(int fromPosition) {
         PinnedSectionListAdapter adapter = getPinnedAdapter( PinnedSectionListView.this );
+        if (adapter == null) {
+            return -1;
+        }
 
         if (adapter instanceof SectionIndexer) {
             // try fast way by asking section indexer
