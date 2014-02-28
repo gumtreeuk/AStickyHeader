@@ -16,8 +16,8 @@ import android.widget.TextView;
 import com.actionbarsherlock.view.Menu;
 
 import dev.dworks.libs.astickyheader.R;
+import dev.dworks.libs.astickyheader.Section;
 import dev.dworks.libs.astickyheader.SimpleSectionedListAdapter;
-import dev.dworks.libs.astickyheader.SimpleSectionedListAdapter.Section;
 
 public class ListActivity extends CacheActivity {
 	private ListView list;

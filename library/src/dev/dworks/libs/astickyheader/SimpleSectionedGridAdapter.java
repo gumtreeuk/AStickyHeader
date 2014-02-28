@@ -16,9 +16,6 @@
 
 package dev.dworks.libs.astickyheader;
 
-import java.util.Arrays;
-import java.util.Comparator;
-
 import android.content.Context;
 import android.database.DataSetObserver;
 import android.util.SparseArray;
@@ -30,180 +27,183 @@ import android.widget.GridView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import java.util.Arrays;
+import java.util.Comparator;
+
 import dev.dworks.libs.astickyheader.ui.FillerView;
 import dev.dworks.libs.astickyheader.ui.HeaderLayout;
 import dev.dworks.libs.astickyheader.ui.PinnedSectionGridView;
 import dev.dworks.libs.astickyheader.ui.PinnedSectionGridView.PinnedSectionGridAdapter;
 
-public class SimpleSectionedGridAdapter extends BaseAdapter implements PinnedSectionGridAdapter{
-	protected static final int TYPE_FILLER = 0;
-	protected static final int TYPE_HEADER = 1;
-	protected static final int TYPE_HEADER_FILLER = 2;
-    private boolean mValid = true;
-    private int mSectionResourceId;
-    private int mHeaderId;
-    private int mHeaderLayoutId;
-    private LayoutInflater mLayoutInflater;
-    private ListAdapter mBaseAdapter;
-    private SparseArray<Section> mSections = new SparseArray<Section>();
-	private Context mContext;
-	private View mLastViewSeen;
-	private int mNumColumns;
-	private int mWidth;
-	private int mColumnWidth;
-	private int mHorizontalSpacing;
-	private int mStretchMode;
-	private int requestedColumnWidth;
-	private int requestedHorizontalSpacing;
-	private GridView mGridView;
+public class SimpleSectionedGridAdapter extends BaseAdapter implements PinnedSectionGridAdapter {
 
-    public static class Section {
-        int firstPosition;
-        int sectionedPosition;
-        CharSequence title;
-        int type = 0;
-
-        public Section(int firstPosition, CharSequence title) {
-            this.firstPosition = firstPosition;
-            this.title = title;
-        }
-
-        public CharSequence getTitle() {
-            return title;
-        }
-    }
+    private boolean valid = true;
+    private int sectionResourceId;
+    private int headerId;
+    private int headerLayoutId;
+    private LayoutInflater layoutInflater;
+    private ListAdapter baseAdapter;
+    private SparseArray<Section> sections = new SparseArray<Section>();
+    private Context context;
+    private View lastViewSeen;
+    private int numColumns;
+    private int width;
+    private int columnWidth;
+    private int horizontalSpacing;
+    private int stretchMode;
+    private int requestedColumnWidth;
+    private int requestedHorizontalSpacing;
+    private PinnedSectionGridView gridView;
 
     public SimpleSectionedGridAdapter(Context context, int sectionResourceId, int headerId,
                                       int headerLayoutId, BaseAdapter baseAdapter) {
-        mLayoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        mSectionResourceId = sectionResourceId;
-        mBaseAdapter = baseAdapter;
-        mContext = context;
-        this.mHeaderId = headerId;
-        this.mHeaderLayoutId = headerLayoutId;
-        mBaseAdapter.registerDataSetObserver(new DataSetObserver() {
+        layoutInflater = (LayoutInflater) context.getSystemService( Context.LAYOUT_INFLATER_SERVICE );
+        this.sectionResourceId = sectionResourceId;
+        this.baseAdapter = baseAdapter;
+        this.context = context;
+        this.headerId = headerId;
+        this.headerLayoutId = headerLayoutId;
+        this.baseAdapter.registerDataSetObserver( new DataSetObserver() {
             @Override
             public void onChanged() {
-                mValid = !mBaseAdapter.isEmpty();
+                valid = !SimpleSectionedGridAdapter.this.baseAdapter.isEmpty();
                 notifyDataSetChanged();
             }
 
             @Override
             public void onInvalidated() {
-                mValid = false;
+                valid = false;
                 notifyDataSetInvalidated();
             }
-        });
+        } );
     }
-    
-    public void setGridView(GridView gridView){
-    	if(!(gridView instanceof PinnedSectionGridView)){
-    		throw new IllegalArgumentException("Does your grid view extends PinnedSectionGridView?");
-    	}
-    	mGridView = gridView;
-    	mStretchMode = gridView.getStretchMode();
-    	mWidth = gridView.getWidth() - (mGridView.getPaddingLeft() + mGridView.getPaddingRight());
-        mNumColumns = gridView.getNumColumns();
-        requestedColumnWidth = gridView.getColumnWidth();
-    	requestedHorizontalSpacing = gridView.getHorizontalSpacing();
-    }
-    
-    private int getHeaderSize(){
-    	if(mWidth != mGridView.getWidth()){
-	    	mStretchMode = mGridView.getStretchMode();
-	    	mWidth = mGridView.getWidth() - (mGridView.getPaddingLeft() + mGridView.getPaddingRight());
-	        mNumColumns = mGridView.getNumColumns();
-	        requestedColumnWidth = mGridView.getColumnWidth();
-	    	requestedHorizontalSpacing = mGridView.getHorizontalSpacing();
-    	}
-    	
-        int spaceLeftOver = mWidth - (mNumColumns * requestedColumnWidth) -
-                ((mNumColumns - 1) * requestedHorizontalSpacing);
-        switch (mStretchMode) {
-        case GridView.NO_STRETCH:            // Nobody stretches
-        	mWidth -= spaceLeftOver;
-            mColumnWidth = requestedColumnWidth;
-            mHorizontalSpacing = requestedHorizontalSpacing;
-            break;
 
-        case GridView.STRETCH_COLUMN_WIDTH:
-            mColumnWidth = requestedColumnWidth + spaceLeftOver / mNumColumns;
-            mHorizontalSpacing = requestedHorizontalSpacing;
-            break;
-
-        case GridView.STRETCH_SPACING:
-            mColumnWidth = requestedColumnWidth;
-            if (mNumColumns > 1) {
-                mHorizontalSpacing = requestedHorizontalSpacing + 
-                    spaceLeftOver / (mNumColumns - 1);
-            } else {
-                mHorizontalSpacing = requestedHorizontalSpacing + spaceLeftOver;
-            }
-            break;
-
-        case GridView.STRETCH_SPACING_UNIFORM:
-            mColumnWidth = requestedColumnWidth;
-            mHorizontalSpacing = requestedHorizontalSpacing;
-        	mWidth = mWidth - spaceLeftOver + (2 * mHorizontalSpacing);
-            break;
+    public void setGridView(GridView gridView) {
+        if (!(gridView instanceof PinnedSectionGridView)) {
+            throw new IllegalArgumentException( "Does your grid view extends PinnedSectionGridView?" );
         }
-		return mWidth + ((mNumColumns - 1) * (mColumnWidth + mHorizontalSpacing)) ;
+        this.gridView = (PinnedSectionGridView) gridView;
+        stretchMode = this.gridView.getStretchMode();
+        width = this.gridView.getWidth() - (this.gridView.getPaddingLeft() + this.gridView.getPaddingRight());
+        numColumns = this.gridView.getNumColumns();
+        requestedColumnWidth = this.gridView.getColumnWidth();
+        requestedHorizontalSpacing = this.gridView.getHorizontalSpacing();
+    }
+
+    private int getHeaderSize() {
+        if (width != gridView.getWidth()) {
+            stretchMode = gridView.getStretchMode();
+            width = gridView.getWidth() - (gridView.getPaddingLeft() + gridView.getPaddingRight());
+            numColumns = gridView.getNumColumns();
+            requestedColumnWidth = gridView.getColumnWidth();
+            requestedHorizontalSpacing = gridView.getHorizontalSpacing();
+        }
+
+        int spaceLeftOver = width - (numColumns * requestedColumnWidth) -
+                            ((numColumns - 1) * requestedHorizontalSpacing);
+        switch (stretchMode) {
+            case GridView.NO_STRETCH:            // Nobody stretches
+                width -= spaceLeftOver;
+                columnWidth = requestedColumnWidth;
+                horizontalSpacing = requestedHorizontalSpacing;
+                break;
+
+            case GridView.STRETCH_COLUMN_WIDTH:
+                columnWidth = requestedColumnWidth + spaceLeftOver / numColumns;
+                horizontalSpacing = requestedHorizontalSpacing;
+                break;
+
+            case GridView.STRETCH_SPACING:
+                columnWidth = requestedColumnWidth;
+                if (numColumns > 1) {
+                    horizontalSpacing = requestedHorizontalSpacing +
+                                        spaceLeftOver / (numColumns - 1);
+                } else {
+                    horizontalSpacing = requestedHorizontalSpacing + spaceLeftOver;
+                }
+                break;
+
+            case GridView.STRETCH_SPACING_UNIFORM:
+                columnWidth = requestedColumnWidth;
+                horizontalSpacing = requestedHorizontalSpacing;
+                width = width - spaceLeftOver + (2 * horizontalSpacing);
+                break;
+        }
+        return width + ((numColumns - 1) * (columnWidth + horizontalSpacing));
     }
 
     public void setSections(Section[] sections) {
-        mSections.clear();
+        this.sections.clear();
+        sortSections( sections );
+        int offset = 0;
+        int index = 0;
+        for (int i = 0; i < sections.length; i++) {
+            Section section = sections[i];
+            index = section.getFirstPosition() + offset;
+            int numberOfGridFiller = numColumns*(1+ index/numColumns) - index;
+            if(numberOfGridFiller == numColumns) {
+                numberOfGridFiller = 0;
+            }
+            addGridFillers( numberOfGridFiller, index );
+            offset = offset + numberOfGridFiller;
+            index = index + numberOfGridFiller;
+            int numberOfHeaderFillers = numColumns - 1;
+            addHeaderFillers( numberOfHeaderFillers, index );
+            offset = offset + numberOfHeaderFillers;
+            index = index + numberOfHeaderFillers;
+            addHeader( section, index );
+            offset++;
+        }
+        notifyDataSetChanged();
+    }
 
-        Arrays.sort(sections, new Comparator<Section>() {
+    private void sortSections(Section[] sections) {
+        Arrays.sort( sections, new Comparator<Section>() {
             @Override
             public int compare(Section o, Section o1) {
-                return (o.firstPosition == o1.firstPosition)
-                        ? 0
-                        : ((o.firstPosition < o1.firstPosition) ? -1 : 1);
+                return (o.getFirstPosition() == o1.getFirstPosition())
+                       ? 0
+                       : ((o.getFirstPosition() < o1.getFirstPosition()) ? -1 : 1);
             }
-        });
+        } );
+    }
 
-        int offset = 0; // offset positions for the headers we're adding
-        for (int i = 0; i < sections.length; i++) {
-			Section section = sections[i];
-    		Section sectionAdd;
- 
-        	for (int j = 0; j < mNumColumns - 1; j++) {
-        		sectionAdd = new Section(section.firstPosition, section.title);
-        		sectionAdd.type = TYPE_HEADER_FILLER;
-        		sectionAdd.sectionedPosition = sectionAdd.firstPosition + offset;
-                mSections.append(sectionAdd.sectionedPosition, sectionAdd);
-                ++offset;
-			}
-    		
-    		sectionAdd = new Section(section.firstPosition, section.title);
-    		sectionAdd.type = TYPE_HEADER;
-    		sectionAdd.sectionedPosition = sectionAdd.firstPosition + offset;
-            mSections.append(sectionAdd.sectionedPosition, sectionAdd);
-            ++offset;
-        	
-            if(i+1 < sections.length){
-            	int nextPos = sections[i+1].firstPosition;
-            	int itemsCount = nextPos - section.firstPosition;
-            	int dummyCount = mNumColumns - (itemsCount % mNumColumns);
-            	if(mNumColumns != dummyCount){
-	            	for (int j = 0 ;j < dummyCount; j++) {
-	                	sectionAdd = new Section(section.firstPosition, section.title);
-	            		sectionAdd.type = TYPE_FILLER;
-	            		sectionAdd.sectionedPosition = nextPos + offset;
-	            		mSections.append(sectionAdd.sectionedPosition, sectionAdd);
-	            		++offset;
-					}
-            	}
-            }
-		}
+    private void addGridFillers(int number, int fromPosition) {
+        if(number <= 0) {
+            return;
+        }
+        for(int i=0; i< number; i++ ) {
+            Section s = new Section( fromPosition, null );
+            s.setSectionedPosition( fromPosition + i );
+            s.setType( Section.TYPE_GRID_FILLER );
+            sections.append( s.getSectionedPosition(), s );
+        }
+    }
 
-        notifyDataSetChanged();
+    private void addHeader(Section section, int fromPosition) {
+        Section s = new Section( section.getFirstPosition(), section.getTitle() );
+        s.setType( Section.TYPE_HEADER );
+        s.setSectionedPosition( fromPosition );
+        sections.append( s.getSectionedPosition(), s );
+    }
+
+    private void addHeaderFillers(int number, int fromPosition) {
+        if(number <= 0) {
+            return;
+        }
+        for(int i=0; i< number; i++ ) {
+            Section s = new Section( fromPosition, null);
+            s.setSectionedPosition( s.getFirstPosition() + i );
+            s.setType( Section.TYPE_HEADER_FILLER );
+            sections.append( s.getSectionedPosition(), s );
+        }
     }
 
     public int positionToSectionedPosition(int position) {
         int offset = 0;
-        for (int i = 0; i < mSections.size(); i++) {
-            if (mSections.valueAt(i).firstPosition > position) {
+        for (int i = 0; i < sections.size(); i++) {
+            if (sections.valueAt( i ).getFirstPosition() > position) {
                 break;
             }
             ++offset;
@@ -212,13 +212,13 @@ public class SimpleSectionedGridAdapter extends BaseAdapter implements PinnedSec
     }
 
     public int sectionedPositionToPosition(int sectionedPosition) {
-        if (isSectionHeaderPosition(sectionedPosition)) {
+        if (isSectionHeaderPosition( sectionedPosition )) {
             return ListView.INVALID_POSITION;
         }
 
         int offset = 0;
-        for (int i = 0; i < mSections.size(); i++) {
-            if (mSections.valueAt(i).sectionedPosition > sectionedPosition) {
+        for (int i = 0; i < sections.size(); i++) {
+            if (sections.valueAt( i ).getSectionedPosition() > sectionedPosition) {
                 break;
             }
             --offset;
@@ -227,46 +227,46 @@ public class SimpleSectionedGridAdapter extends BaseAdapter implements PinnedSec
     }
 
     public boolean isSectionHeaderPosition(int position) {
-        return mSections.get(position) != null;
+        return sections.get( position ) != null;
     }
 
     @Override
     public int getCount() {
-        return (mValid ? mBaseAdapter.getCount() + mSections.size() : 0);
+        return (valid ? baseAdapter.getCount() + sections.size() : 0);
     }
 
     @Override
     public Object getItem(int position) {
-        return isSectionHeaderPosition(position)
-                ? mSections.get(position)
-                : mBaseAdapter.getItem(sectionedPositionToPosition(position));
+        return isSectionHeaderPosition( position )
+               ? sections.get( position )
+               : baseAdapter.getItem( sectionedPositionToPosition( position ) );
     }
 
     @Override
     public long getItemId(int position) {
-        return isSectionHeaderPosition(position)
-                ? Integer.MAX_VALUE - mSections.indexOfKey(position)
-                : mBaseAdapter.getItemId(sectionedPositionToPosition(position));
+        return isSectionHeaderPosition( position )
+               ? Integer.MAX_VALUE - sections.indexOfKey( position )
+               : baseAdapter.getItemId( sectionedPositionToPosition( position ) );
     }
 
     @Override
     public int getItemViewType(int position) {
-        return isSectionHeaderPosition(position)
-                ? getViewTypeCount() - 1
-                : mBaseAdapter.getItemViewType(position);
+        return isSectionHeaderPosition( position )
+               ? getViewTypeCount() - 1
+               : baseAdapter.getItemViewType( position );
     }
 
     @Override
     public boolean isEnabled(int position) {
         //noinspection SimplifiableConditionalExpression
-        return isSectionHeaderPosition(position)
-                ? false
-                : mBaseAdapter.isEnabled(sectionedPositionToPosition(position));
+        return isSectionHeaderPosition( position )
+               ? false
+               : baseAdapter.isEnabled( sectionedPositionToPosition( position ) );
     }
 
     @Override
     public int getViewTypeCount() {
-        return mBaseAdapter.getViewTypeCount() + 1; // the section headings
+        return baseAdapter.getViewTypeCount() + 1;
     }
 
     @Override
@@ -276,80 +276,84 @@ public class SimpleSectionedGridAdapter extends BaseAdapter implements PinnedSec
 
     @Override
     public boolean hasStableIds() {
-        return mBaseAdapter.hasStableIds();
+        return baseAdapter.hasStableIds();
     }
 
     @Override
     public boolean isEmpty() {
-        return mBaseAdapter.isEmpty();
+        return baseAdapter.isEmpty();
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        if (isSectionHeaderPosition(position)) {
-        	HeaderLayout header;
-        	TextView view;
-        	if(null == convertView){
-        		convertView = mLayoutInflater.inflate(mSectionResourceId, parent, false);
-        	}
-        	else{
-        		if(null == convertView.findViewById(mHeaderLayoutId)){
-        			convertView = mLayoutInflater.inflate(mSectionResourceId, parent, false);	
-        		}
-        	}
-			switch (mSections.get(position).type) {
-			case TYPE_HEADER:
-				header = (HeaderLayout) convertView.findViewById(mHeaderLayoutId);
-				view = (TextView) convertView.findViewById(mHeaderId);
-	            view.setText(mSections.get(position).title);
-	            header.setHeaderWidth(getHeaderSize());
-	            break;
-			case TYPE_HEADER_FILLER:
-				header = (HeaderLayout) convertView.findViewById(mHeaderLayoutId);
-				view = (TextView) convertView.findViewById(mHeaderId);
-	            view.setText("");
-	            header.setHeaderWidth(0);
-				break;
-			default:
-				convertView = getFillerView(convertView, parent, mLastViewSeen);
-				break;
-			}
+        if (isSectionHeaderPosition( position )) {
+            switch (sections.get( position ).getType()) {
+                case Section.TYPE_HEADER:
+                    convertView = getHeaderView( position, convertView, parent );
+                    break;
+                case Section.TYPE_HEADER_FILLER:
+                    convertView = getHeaderFillerView( convertView, parent );
+                    break;
+                case Section.TYPE_GRID_FILLER:
+                    convertView = getGridFillerView( lastViewSeen );
+                    break;
+                default:
+                    throw new RuntimeException( "Type : " + sections.get( position ).getType() + " not supported");
+            }
+
+
         } else {
-            convertView = mBaseAdapter.getView(sectionedPositionToPosition(position), convertView, parent);
-        	mLastViewSeen = convertView; 
+            convertView = baseAdapter.getView( sectionedPositionToPosition( position ), convertView, parent );
+            lastViewSeen = convertView;
         }
         return convertView;
     }
-    
-    private FillerView getFillerView(View convertView, ViewGroup parent, View lastViewSeen) {
+
+    private View getHeaderFillerView(View convertView, ViewGroup parent) {
+        convertView = makeSureIsCorrectConvertedView( convertView, parent );
+        HeaderLayout header = (HeaderLayout) convertView.findViewById( headerLayoutId );
+        TextView view = (TextView) convertView.findViewById( headerId );
+        view.setText( "" );
+        header.setHeaderWidth( 0 );
+        return convertView;
+    }
+
+    private View getHeaderView(int position, View convertView, ViewGroup parent) {
+        convertView = makeSureIsCorrectConvertedView( convertView, parent );
+        HeaderLayout header = (HeaderLayout) convertView.findViewById( headerLayoutId );
+        TextView view = (TextView) convertView.findViewById( headerId );
+        view.setText( sections.get( position ).getTitle() );
+        header.setHeaderWidth( getHeaderSize() );
+        return convertView;
+    }
+
+    private View makeSureIsCorrectConvertedView(View convertView, ViewGroup parent) {
+        if (null == convertView) {
+            convertView = layoutInflater.inflate( sectionResourceId, parent, false );
+        } else {
+            if (null == convertView.findViewById( headerLayoutId )) {
+                convertView = layoutInflater.inflate( sectionResourceId, parent, false );
+            }
+        }
+        return convertView;
+    }
+
+    private FillerView getGridFillerView(View lastViewSeen) {
         FillerView fillerView = null;
         if (fillerView == null) {
-            fillerView = new FillerView(mContext);
+            fillerView = new FillerView( context );
         }
-        fillerView.setMeasureTarget(lastViewSeen);
+        fillerView.setMeasureTarget( lastViewSeen );
         return fillerView;
     }
 
-	@Override
-	public boolean isItemViewTypePinned(int position) {
-		Section section = mSections.get(position); 
-		return isSectionHeaderPosition(position) && section.type == TYPE_HEADER;
-	}
+    @Override
+    public boolean isItemViewTypePinned(int position) {
+        Section section = sections.get( position );
+        return isSectionHeaderPosition( position ) && section.isHeader();
+    }
 
-	public static class ViewHolder {
-		@SuppressWarnings("unchecked")
-		public static <T extends View> T get(View view, int id) {
-			SparseArray<View> viewHolder = (SparseArray<View>) view.getTag();
-			if (viewHolder == null) {
-				viewHolder = new SparseArray<View>();
-				view.setTag(viewHolder);
-			}
-			View childView = viewHolder.get(id);
-			if (childView == null) {
-				childView = view.findViewById(id);
-				viewHolder.put(id, childView);
-			}
-			return (T) childView;
-		}
-	}
+    protected ListAdapter getWrappedAdapter() {
+        return baseAdapter;
+    }
 }

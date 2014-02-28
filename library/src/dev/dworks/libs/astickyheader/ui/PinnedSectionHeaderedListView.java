@@ -37,6 +37,10 @@ public class PinnedSectionHeaderedListView extends PinnedSectionListView {
             this.adapter = adapter;
         }
 
+        public HeaderViewListAdapter getWrappedAdapter() {
+            return adapter;
+        }
+
         @Override
         public boolean isItemViewTypePinned(int position) {
             if(position == 0) {

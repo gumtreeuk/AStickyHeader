@@ -41,26 +41,6 @@ public class SimpleSectionedListAdapter extends BaseAdapter implements PinnedSec
     private ListAdapter mBaseAdapter;
     private SparseArray<Section> mSections = new SparseArray<Section>();
 
-    public static class Section {
-
-        int firstPosition;
-        int sectionedPosition;
-        CharSequence title;
-
-        public int getFirstPosition() {
-            return firstPosition;
-        }
-
-        public Section(int firstPosition, CharSequence title) {
-            this.firstPosition = firstPosition;
-            this.title = title;
-        }
-
-        public CharSequence getTitle() {
-            return title;
-        }
-    }
-
     public SimpleSectionedListAdapter(Context context, int sectionResourceId, int headerId,
                                       BaseAdapter baseAdapter) {
         mLayoutInflater = (LayoutInflater) context.getSystemService( Context.LAYOUT_INFLATER_SERVICE );
@@ -88,14 +68,15 @@ public class SimpleSectionedListAdapter extends BaseAdapter implements PinnedSec
         Arrays.sort( sections, new Comparator<Section>() {
             @Override
             public int compare(Section o, Section o1) {
-                return (o.firstPosition == o1.firstPosition) ? 0 : ((o.firstPosition < o1.firstPosition) ? -1 : 1);
+                return (o.getFirstPosition() == o1.getFirstPosition()) ?
+                       0 : ((o.getFirstPosition() < o1.getFirstPosition()) ? -1 : 1);
             }
         } );
 
         int offset = 0; // offset positions for the headers we're adding
         for (Section section : sections) {
-            section.sectionedPosition = section.firstPosition + offset;
-            mSections.append( section.sectionedPosition, section );
+            section.setSectionedPosition( section.getFirstPosition() + offset );
+            mSections.append( section.getSectionedPosition(), section );
             ++offset;
         }
         notifyDataSetChanged();
@@ -108,7 +89,7 @@ public class SimpleSectionedListAdapter extends BaseAdapter implements PinnedSec
 
         int offset = 0;
         for (int i = 0; i < mSections.size(); i++) {
-            if (mSections.valueAt( i ).sectionedPosition > sectionedPosition) {
+            if (mSections.valueAt( i ).getSectionedPosition() > sectionedPosition) {
                 break;
             }
             --offset;
@@ -186,7 +167,7 @@ public class SimpleSectionedListAdapter extends BaseAdapter implements PinnedSec
                 }
             }
             view = (TextView) convertView.findViewById( mHeaderId );
-            view.setText( mSections.get( position ).title );
+            view.setText( mSections.get( position ).getTitle() );
             return convertView;
         } else {
             return mBaseAdapter.getView( sectionedPositionToPosition( position ), convertView, parent );
@@ -200,5 +181,19 @@ public class SimpleSectionedListAdapter extends BaseAdapter implements PinnedSec
 
     protected ListAdapter getWrappedAdapter() {
         return mBaseAdapter;
+    }
+
+    @Override
+    public void registerDataSetObserver(DataSetObserver observer) {
+        if (mBaseAdapter != null) {
+            mBaseAdapter.registerDataSetObserver( observer );
+        }
+    }
+
+    @Override
+    public void unregisterDataSetObserver(DataSetObserver observer) {
+        if (mBaseAdapter != null) {
+            mBaseAdapter.unregisterDataSetObserver( observer );
+        }
     }
 }

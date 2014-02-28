@@ -14,8 +14,8 @@ import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 import dev.dworks.libs.astickyheader.R;
+import dev.dworks.libs.astickyheader.Section;
 import dev.dworks.libs.astickyheader.SimpleSectionedGridAdapter;
-import dev.dworks.libs.astickyheader.SimpleSectionedGridAdapter.Section;
 
 public class GridActivity extends CacheActivity {
 
@@ -77,7 +77,6 @@ public class GridActivity extends CacheActivity {
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			ImageView image;
-			
 			if (convertView == null) {
 				convertView = mInflater.inflate(R.layout.grid_item, parent, false);
 			}
@@ -103,7 +102,7 @@ public class GridActivity extends CacheActivity {
     };
     
     private String[] mHeaderNames = { "Cute Cats", "Few Cats", "Some Cats", "Some More Cats", "Some More More Cats", "Many Cats", "Many Many Cats", "So Many Cats" };
-    private Integer[] mHeaderPositions = { 0, 6, 11, 37, 38, 60, 77, 89 };
+    private Integer[] mHeaderPositions = { 3, 6, 11, 37, 38, 60, 77, 89 };
 
 	public static class ViewHolder {
 		@SuppressWarnings("unchecked")

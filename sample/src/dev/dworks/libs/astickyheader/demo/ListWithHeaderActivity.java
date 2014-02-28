@@ -17,8 +17,8 @@ import com.actionbarsherlock.view.Menu;
 import java.util.ArrayList;
 
 import dev.dworks.libs.astickyheader.R;
+import dev.dworks.libs.astickyheader.Section;
 import dev.dworks.libs.astickyheader.SimpleSectionedListAdapter;
-import dev.dworks.libs.astickyheader.SimpleSectionedListAdapter.Section;
 
 public class ListWithHeaderActivity extends CacheActivity {
 	private ListView list;
