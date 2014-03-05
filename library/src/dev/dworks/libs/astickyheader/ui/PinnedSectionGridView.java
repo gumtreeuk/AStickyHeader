@@ -134,7 +134,10 @@ public class PinnedSectionGridView extends GridView {
             // get expected adapter or fail
             PinnedSectionGridAdapter adapter = (PinnedSectionGridAdapter) view.getAdapter();
             if (adapter == null || visibleItemCount == 0) {
-                return; // nothing to do
+                if (firstVisibleItem == 0) {
+                    destroyPinnedShadow();
+                }
+                return;
             }
 
             int visibleSectionPosition = findFirstVisibleSectionPosition( firstVisibleItem, visibleItemCount );
@@ -238,11 +241,6 @@ public class PinnedSectionGridView extends GridView {
 
         // request new view
         View pinnedView = getAdapter().getView( position, recycleView, PinnedSectionGridView.this );
-        //TODO
-        //HeaderLayout header = (HeaderLayout) pinnedView.findViewById(R.id.header_layout);
-        //header.setHeaderWidth(1);
-        //TODO
-        pinnedView.setBackgroundColor( Color.WHITE );
         // read layout parameters
         LayoutParams layoutParams = (LayoutParams) pinnedView.getLayoutParams();
 
