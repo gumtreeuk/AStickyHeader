@@ -21,10 +21,6 @@ public class DynamicSectionedGridAdapter extends SimpleSectionedGridAdapter {
         super.setSections( filter( ) );
     }
 
-    public void updateSections() {
-        super.setSections( filter() );
-    }
-
     private Section[] filter() {
         if(getWrappedAdapter() == null) {
             return new Section[]{};

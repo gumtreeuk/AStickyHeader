@@ -141,8 +141,8 @@ public class SimpleSectionedGridAdapter extends BaseAdapter implements PinnedSec
         for (int i = 0; i < sections.length; i++) {
             Section section = sections[i];
             index = section.getFirstPosition() + offset;
-            int numberOfGridFiller = numColumns*(1+ index/numColumns) - index;
-            if(numberOfGridFiller == numColumns) {
+            int numberOfGridFiller = numColumns * (1 + index / numColumns) - index;
+            if (numberOfGridFiller == numColumns) {
                 numberOfGridFiller = 0;
             }
             addGridFillers( numberOfGridFiller, index );
@@ -170,10 +170,10 @@ public class SimpleSectionedGridAdapter extends BaseAdapter implements PinnedSec
     }
 
     private void addGridFillers(int number, int fromPosition) {
-        if(number <= 0) {
+        if (number <= 0) {
             return;
         }
-        for(int i=0; i< number; i++ ) {
+        for (int i = 0; i < number; i++) {
             Section s = new Section( fromPosition, null );
             s.setSectionedPosition( fromPosition + i );
             s.setType( Section.TYPE_GRID_FILLER );
@@ -182,18 +182,18 @@ public class SimpleSectionedGridAdapter extends BaseAdapter implements PinnedSec
     }
 
     private void addHeader(Section section, int fromPosition) {
-        Section s = new Section( section.getFirstPosition(), section.getTitle() );
+        Section s = new Section( section.getFirstPosition(), section.getTitle(), section.isSticky() );
         s.setType( Section.TYPE_HEADER );
         s.setSectionedPosition( fromPosition );
         sections.append( s.getSectionedPosition(), s );
     }
 
     private void addHeaderFillers(int number, int fromPosition) {
-        if(number <= 0) {
+        if (number <= 0) {
             return;
         }
-        for(int i=0; i< number; i++ ) {
-            Section s = new Section( fromPosition, null);
+        for (int i = 0; i < number; i++) {
+            Section s = new Section( fromPosition, null );
             s.setSectionedPosition( s.getFirstPosition() + i );
             s.setType( Section.TYPE_HEADER_FILLER );
             sections.append( s.getSectionedPosition(), s );
@@ -298,10 +298,8 @@ public class SimpleSectionedGridAdapter extends BaseAdapter implements PinnedSec
                     convertView = getGridFillerView( lastViewSeen );
                     break;
                 default:
-                    throw new RuntimeException( "Type : " + sections.get( position ).getType() + " not supported");
+                    throw new RuntimeException( "Type : " + sections.get( position ).getType() + " not supported" );
             }
-
-
         } else {
             convertView = baseAdapter.getView( sectionedPositionToPosition( position ), convertView, parent );
             lastViewSeen = convertView;
@@ -350,7 +348,13 @@ public class SimpleSectionedGridAdapter extends BaseAdapter implements PinnedSec
     @Override
     public boolean isItemViewTypePinned(int position) {
         Section section = sections.get( position );
-        return isSectionHeaderPosition( position ) && section.isHeader();
+        if (!isSectionHeaderPosition( position )) {
+            return false;
+        }
+        if (!section.isHeader()) {
+            return false;
+        }
+        return section.isSticky();
     }
 
     protected ListAdapter getWrappedAdapter() {

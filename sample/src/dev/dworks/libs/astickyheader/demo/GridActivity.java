@@ -33,6 +33,7 @@ public class GridActivity extends CacheActivity {
 	private void initControls() {
 		grid = (GridView)findViewById(R.id.grid);
 		mAdapter = new ImageAdapter(this);
+        sections.add( new Section( 1, "non sticky header", false ) );
 		for (int i = 0; i < mHeaderPositions.length; i++) {
 			sections.add(new Section(mHeaderPositions[i], mHeaderNames[i]));
 		}

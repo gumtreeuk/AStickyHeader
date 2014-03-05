@@ -10,10 +10,18 @@ public class Section {
     private int sectionedPosition;
     private CharSequence title;
     private int type = 0;
+    private boolean isSticky;
 
     public Section(int firstPosition, CharSequence title) {
         this.firstPosition = firstPosition;
         this.title = title;
+        this.isSticky = true;
+    }
+
+    public Section(int firstPosition, CharSequence title, boolean isSticky) {
+        this.firstPosition = firstPosition;
+        this.title = title;
+        this.isSticky = isSticky;
     }
 
     public CharSequence getTitle() {
@@ -42,5 +50,9 @@ public class Section {
 
     public boolean isHeader() {
         return type == TYPE_HEADER;
+    }
+
+    public boolean isSticky() {
+        return isSticky;
     }
 }
