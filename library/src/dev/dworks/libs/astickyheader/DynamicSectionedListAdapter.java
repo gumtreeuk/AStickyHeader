@@ -35,7 +35,7 @@ public class DynamicSectionedListAdapter extends SimpleSectionedListAdapter {
         int count = getWrappedAdapter().getCount();
         List<Section> filtered = new ArrayList<Section>();
         for(Section s: sections) {
-            if(s.getFirstPosition() <= count) {
+            if(s.getPosition() <= count) {
                 filtered.add( s );
             }
         }

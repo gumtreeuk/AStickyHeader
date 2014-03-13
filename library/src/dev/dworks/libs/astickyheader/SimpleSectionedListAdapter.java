@@ -68,14 +68,14 @@ public class SimpleSectionedListAdapter extends BaseAdapter implements PinnedSec
         Arrays.sort( sections, new Comparator<Section>() {
             @Override
             public int compare(Section o, Section o1) {
-                return (o.getFirstPosition() == o1.getFirstPosition()) ?
-                       0 : ((o.getFirstPosition() < o1.getFirstPosition()) ? -1 : 1);
+                return (o.getPosition() == o1.getPosition()) ?
+                       0 : ((o.getPosition() < o1.getPosition()) ? -1 : 1);
             }
         } );
 
         int offset = 0; // offset positions for the headers we're adding
         for (Section section : sections) {
-            section.setSectionedPosition( section.getFirstPosition() + offset );
+            section.setSectionedPosition( section.getPosition() + offset );
             mSections.append( section.getSectionedPosition(), section );
             ++offset;
         }

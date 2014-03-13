@@ -2,8 +2,8 @@
         xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/header_layout"
     android:layout_width="fill_parent"
-    android:layout_height="21dp"
-    android:background="@color/white">
+    android:background="@color/red"
+    android:layout_height="50dp" >
 
     <TextView
         android:id="@+id/header"
@@ -14,6 +14,7 @@
         android:textAllCaps="true"
         android:textColor="@android:color/black"
         android:layout_margin="0dp"
+        android:text="footer"
         android:textIsSelectable="false" />
 
 </dev.dworks.libs.astickyheader.ui.HeaderLayout>

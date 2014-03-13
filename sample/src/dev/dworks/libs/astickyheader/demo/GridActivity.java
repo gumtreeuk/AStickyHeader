@@ -33,16 +33,21 @@ public class GridActivity extends CacheActivity {
 	private void initControls() {
 		grid = (GridView)findViewById(R.id.grid);
 		mAdapter = new ImageAdapter(this);
-        sections.add( new Section( 1, "non sticky header", false ) );
+        sections.add( new Section.Builder( 1 ).withHeaderText( "non sticky header" )
+                              .sticky( false ).build() );
 		for (int i = 0; i < mHeaderPositions.length; i++) {
-			sections.add(new Section(mHeaderPositions[i], mHeaderNames[i]));
+			sections.add(new Section.Builder(mHeaderPositions[i]).withHeaderText(mHeaderNames[i]).build());
 		}
 		SimpleSectionedGridAdapter simpleSectionedGridAdapter =
                 new SimpleSectionedGridAdapter(this, R.layout.grid_item_header,
                                                R.id.header,
                                                R.id.header_layout , mAdapter);
 		simpleSectionedGridAdapter.setGridView(grid);
+        sections.add( new Section.Builder( 100 ).withHeaderText( "footer" )
+                              .withLayoutId( R.layout.grid_item_header_red )
+                              .sticky( false ).build() );
 		simpleSectionedGridAdapter.setSections(sections.toArray(new Section[0]));
+
 		grid.setAdapter(simpleSectionedGridAdapter);
 	}
 	

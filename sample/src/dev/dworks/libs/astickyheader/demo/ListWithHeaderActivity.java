@@ -37,7 +37,7 @@ public class ListWithHeaderActivity extends CacheActivity {
         list.addHeaderView( getLayoutInflater().inflate( R.layout.list_own_item_header, null ) );
 		mAdapter = new ImageAdapter(this);
 		for (int i = 0; i < mHeaderPositions.length; i++) {
-			sections.add(new Section(mHeaderPositions[i], mHeaderNames[i]));
+			sections.add(new Section.Builder(mHeaderPositions[i]).withHeaderText( mHeaderNames[i]).build());
 		}
 		SimpleSectionedListAdapter simpleSectionedGridAdapter
                 = new SimpleSectionedListAdapter(this, R.layout.list_item_header, R.id.header, mAdapter) {
