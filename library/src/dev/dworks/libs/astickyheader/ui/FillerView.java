@@ -18,23 +18,24 @@ package dev.dworks.libs.astickyheader.ui;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 
 /**
  * Simple view to fill space in grid view.
- * 
+ *
  * @author Tonic Artos
  */
 public class FillerView extends LinearLayout {
-	private View mMeasureTarget;
+	private int height;
 
 	public FillerView(Context context) {
 		super(context);
 	}
 
-	public void setMeasureTarget(View lastViewSeen) {
-		mMeasureTarget = lastViewSeen;
+	public void setMeasureTarget(int height) {
+        this.height = height;
 	}
 
 	public FillerView(Context context, AttributeSet attrs) {
@@ -47,9 +48,10 @@ public class FillerView extends LinearLayout {
 
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-		if(null != mMeasureTarget)
-		heightMeasureSpec = MeasureSpec.makeMeasureSpec(
-				mMeasureTarget.getMeasuredHeight(), MeasureSpec.EXACTLY);
+        if(height != 0) {
+            super.onMeasure(widthMeasureSpec, height);
+            return;
+        }
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 	}
 }

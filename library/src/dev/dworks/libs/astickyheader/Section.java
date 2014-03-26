@@ -2,16 +2,18 @@ package dev.dworks.libs.astickyheader;
 
 public class Section {
 
-    protected static final int TYPE_HEADER = 1;
-    protected static final int TYPE_HEADER_FILLER = 2;
-    protected static final int TYPE_GRID_FILLER = 3;
+    public static final int TYPE_HEADER = 1;
+    public static final int TYPE_HEADER_FILLER = 2;
+    public static final int TYPE_GRID_FILLER = 3;
+    public static final int TYPE_SINGLE = 4;
 
     private int position;
     private int sectionedPosition;
     private CharSequence title;
-    private int type = 0;
+    private int type = TYPE_HEADER;
     private boolean isSticky = true;
     private int layoutId;
+    private boolean containsAd;
 
     private Section(int position) {
         this.position = position;
@@ -65,6 +67,18 @@ public class Section {
         this.title = title;
     }
 
+    public boolean isSingle() {
+        return type == TYPE_SINGLE;
+    }
+
+    public boolean isContainsAd() {
+        return containsAd;
+    }
+
+    public void setContainsAd(boolean containsAd) {
+        this.containsAd = containsAd;
+    }
+
     public static class Builder {
 
         private final Section section;
@@ -93,9 +107,31 @@ public class Section {
             return this;
         }
 
+        public Builder containsAd() {
+            section.setContainsAd( true );
+            return this;
+        }
+
+        public Builder containsAd(boolean value) {
+            section.setContainsAd( value );
+            return this;
+        }
+
         public Section build() {
             return section;
         }
+    }
 
+    @Override
+    public String toString() {
+        return "Section{" +
+               "position=" + position +
+               ", sectionedPosition=" + sectionedPosition +
+               ", title=" + title +
+               ", type=" + type +
+               ", isSticky=" + isSticky +
+               ", layoutId=" + layoutId +
+               ", containsAd=" + containsAd +
+               '}';
     }
 }

@@ -2,14 +2,14 @@
         xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/header_layout"
     android:layout_width="fill_parent"
-    android:background="@color/red"
-    android:layout_height="50dp" >
+    android:background="@color/green"
+    android:layout_height="wrap_content" >
 
     <TextView
         android:id="@+id/header"
 		style="@style/Widget.Sherlock.TextView.Holo.ListSeparator.Light"
         android:layout_width="match_parent"
-        android:layout_height="21dp"
+        android:layout_height="fill_parent"
         android:singleLine="true"
         android:textAllCaps="true"
         android:textColor="@android:color/black"

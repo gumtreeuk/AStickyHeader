@@ -22,6 +22,7 @@ import android.widget.FrameLayout;
 
 public class HeaderLayout extends FrameLayout {
     private int mHeaderWidth = 1;
+    private int height;
 
     public HeaderLayout(Context context) {
         super(context);
@@ -44,6 +45,14 @@ public class HeaderLayout extends FrameLayout {
     	int widthMeasureSpecNew = mHeaderWidth == 1 
     			? widthMeasureSpec 
     			: MeasureSpec.makeMeasureSpec(mHeaderWidth, MeasureSpec.getMode(widthMeasureSpec));
+        if(height != 0) {
+            super.onMeasure(widthMeasureSpecNew, height);
+            return;
+        }
 		super.onMeasure(widthMeasureSpecNew, heightMeasureSpec);
+    }
+
+    public void setMeasureTarget(int height) {
+        this.height = height;
     }
 }

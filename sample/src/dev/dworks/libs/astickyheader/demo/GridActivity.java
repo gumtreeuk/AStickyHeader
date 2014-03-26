@@ -33,7 +33,7 @@ public class GridActivity extends CacheActivity {
 	private void initControls() {
 		grid = (GridView)findViewById(R.id.grid);
 		mAdapter = new ImageAdapter(this);
-        sections.add( new Section.Builder( 1 ).withHeaderText( "non sticky header" )
+        sections.add( new Section.Builder( 15 ).withHeaderText( "non sticky header" )
                               .sticky( false ).build() );
 		for (int i = 0; i < mHeaderPositions.length; i++) {
 			sections.add(new Section.Builder(mHeaderPositions[i]).withHeaderText(mHeaderNames[i]).build());
@@ -42,8 +42,17 @@ public class GridActivity extends CacheActivity {
                 new SimpleSectionedGridAdapter(this, R.layout.grid_item_header,
                                                R.id.header,
                                                R.id.header_layout , mAdapter);
-		simpleSectionedGridAdapter.setGridView(grid);
-        sections.add( new Section.Builder( 100 ).withHeaderText( "footer" )
+        simpleSectionedGridAdapter.setGridView(grid);
+        sections.add( new Section.Builder( 1 ).type( Section.TYPE_SINGLE )
+                              .withLayoutId( R.layout.grid_item_header_green )
+                              .sticky( false ).build() );
+        sections.add( new Section.Builder( 2 ).type( Section.TYPE_SINGLE )
+                              .withLayoutId( R.layout.grid_item_header_green )
+                              .sticky( false ).build() );
+        sections.add( new Section.Builder( 3 ).type( Section.TYPE_SINGLE )
+                              .withLayoutId( R.layout.grid_item_header_green )
+                              .sticky( false ).build() );
+        sections.add( new Section.Builder( 88 ).withHeaderText( "leaderboard" )
                               .withLayoutId( R.layout.grid_item_header_red )
                               .sticky( false ).build() );
 		simpleSectionedGridAdapter.setSections(sections.toArray(new Section[0]));
