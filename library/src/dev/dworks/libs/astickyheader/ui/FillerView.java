@@ -28,6 +28,7 @@ import android.widget.LinearLayout;
  * @author Tonic Artos
  */
 public class FillerView extends LinearLayout {
+
 	private int height;
 
 	public FillerView(Context context) {

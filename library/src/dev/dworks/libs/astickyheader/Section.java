@@ -14,6 +14,8 @@ public class Section {
     private boolean isSticky = true;
     private int layoutId;
     private boolean containsAd;
+    private int containerViewId;
+    private int textViewId;
 
     private Section(int position) {
         this.position = position;
@@ -79,16 +81,33 @@ public class Section {
         this.containsAd = containsAd;
     }
 
+    private void setTextViewId(int textViewId) {
+        this.textViewId = textViewId;
+    }
+
+    public int getTextViewId() {
+        return textViewId;
+    }
+
+    public int getContainerViewId() {
+        return containerViewId;
+    }
+
+    public void setContainerViewId(int containerViewId) {
+        this.containerViewId = containerViewId;
+    }
+
     public static class Builder {
 
         private final Section section;
 
-        public Builder(int position) {
+        public Builder(int position, int layoutId) {
             section = new Section( position );
+            section.setLayoutId( layoutId );
         }
 
-        public Builder withLayoutId(int layoutId) {
-            section.setLayoutId( layoutId );
+        public Builder withContainerViewId(int containerViewId) {
+            section.setContainerViewId( containerViewId );
             return this;
         }
 
@@ -97,7 +116,9 @@ public class Section {
             return this;
         }
 
-        public Builder withHeaderText(CharSequence title) {
+        public Builder withHeaderText(int containerViewId, int textViewId, CharSequence title) {
+            section.setContainerViewId( containerViewId );
+            section.setTextViewId( textViewId );
             section.setTitle( title );
             return this;
         }
@@ -120,6 +141,43 @@ public class Section {
         public Section build() {
             return section;
         }
+    }
+
+    public static Section buildGridFiller(int fromPosition, int sectionedPosition) {
+        Section s = new Section(fromPosition);
+        s.setType( Section.TYPE_GRID_FILLER );
+        s.setSectionedPosition( sectionedPosition );
+        return s;
+    }
+
+    public static Section buildHeader(Section original, int fromPosition) {
+        Section s = new Section.Builder( fromPosition, original.getLayoutId() )
+                .withHeaderText( original.getContainerViewId(), original.getTextViewId(), original.getTitle() )
+                .sticky( original.isSticky() )
+                .type( original.getType() )
+                .containsAd( original.isContainsAd() )
+                .build();
+        s.setSectionedPosition( fromPosition );
+        return s;
+    }
+
+    public static Section buildSingle(Section section, int fromPosition) {
+        Section s = new Section.Builder( fromPosition, section.getLayoutId() )
+                .withContainerViewId( section.getContainerViewId() )
+                .sticky( section.isSticky() )
+                .type( section.getType() )
+                .containsAd( section.isContainsAd() )
+                .build();
+        s.setSectionedPosition( fromPosition );
+        return s;
+    }
+
+    public static Section buildHeaderFiller(Section section, int fromPosition, int sectionedPosition) {
+        Section s = new Section.Builder( fromPosition, section.getLayoutId() )
+                .withContainerViewId( section.getContainerViewId() )
+                .type( Section.TYPE_HEADER_FILLER ).build();
+        s.setSectionedPosition( sectionedPosition );
+        return s;
     }
 
     @Override

@@ -8,9 +8,8 @@ import java.util.List;
 
 public class DynamicSectionedGridAdapter extends SimpleSectionedGridAdapter {
 
-    public DynamicSectionedGridAdapter(Context context, int sectionResourceId, int headerId,
-                                       int headerContainerId, BaseAdapter baseAdapter) {
-        super( context, sectionResourceId, headerId, headerContainerId, baseAdapter );
+    public DynamicSectionedGridAdapter(Context context, BaseAdapter baseAdapter) {
+        super( context, baseAdapter );
     }
 
     private Section[] sections;

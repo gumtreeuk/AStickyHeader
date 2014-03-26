@@ -42,9 +42,6 @@ import dev.dworks.libs.astickyheader.ui.PinnedSectionGridView.PinnedSectionGridA
 public class SimpleSectionedGridAdapter extends BaseAdapter implements PinnedSectionGridAdapter {
 
     private boolean valid = true;
-    private int sectionResourceId;
-    private int headerId;
-    private int headerLayoutId;
     private LayoutInflater layoutInflater;
     private ListAdapter baseAdapter;
     private SparseArray<Section> sections = new SparseArray<Section>();
@@ -59,14 +56,10 @@ public class SimpleSectionedGridAdapter extends BaseAdapter implements PinnedSec
     private PinnedSectionGridView gridView;
     private int gridFillerHeight;
 
-    public SimpleSectionedGridAdapter(Context context, int sectionResourceId, int headerId,
-                                      int headerLayoutId, BaseAdapter baseAdapter) {
+    public SimpleSectionedGridAdapter(Context context, BaseAdapter baseAdapter) {
         layoutInflater = (LayoutInflater) context.getSystemService( Context.LAYOUT_INFLATER_SERVICE );
-        this.sectionResourceId = sectionResourceId;
         this.baseAdapter = baseAdapter;
         this.context = context;
-        this.headerId = headerId;
-        this.headerLayoutId = headerLayoutId;
         this.baseAdapter.registerDataSetObserver( new DataSetObserver() {
             @Override
             public void onChanged() {
@@ -144,27 +137,19 @@ public class SimpleSectionedGridAdapter extends BaseAdapter implements PinnedSec
         this.sections.clear();
         sortSections( sections );
         int offset = 0;
-        Log.v( "XXX", "columns : " + numColumns );
         for (int i = 0; i < sections.length; i++) {
             Section section = sections[i];
             int index = section.getPosition() + offset;
-            Log.v( "XXX", "index: " + index );
             if (section.isSingle()) {
                 addSingle( section, index );
                 offset++;
             } else {
-                int numberOfGridFiller = numColumns * (1 + index / numColumns) - index;
-                Log.v( "XXX", "number of fillers : " + numberOfGridFiller );
-                if (numberOfGridFiller == numColumns) {
-                    numberOfGridFiller = 0;
-                }
-                addGridFillers( numberOfGridFiller, index );
-                offset = offset + numberOfGridFiller;
-                index = index + numberOfGridFiller;
-                int numberOfHeaderFillers = numColumns - 1;
-                addHeaderFillers( numberOfHeaderFillers, index );
-                offset = offset + numberOfHeaderFillers;
-                index = index + numberOfHeaderFillers;
+                int n = addGridFillers( index );
+                offset = offset + n;
+                index = index + n;
+                n = addHeaderFillers( section, index );
+                offset = offset + n;
+                index = index + n;
                 addHeader( section, index );
                 offset++;
             }
@@ -184,46 +169,42 @@ public class SimpleSectionedGridAdapter extends BaseAdapter implements PinnedSec
         } );
     }
 
-    private void addGridFillers(int number, int fromPosition) {
-        if (number <= 0) {
-            return;
+    private int addGridFillers(int fromPosition) {
+        int n = numColumns * (1 + fromPosition / numColumns) - fromPosition;
+        if (n == numColumns) {
+            n = 0;
         }
-        for (int i = 0; i < number; i++) {
-            Log.v( "XXX", "add grid filler " + fromPosition + " sp :" + (fromPosition + i) );
-            Section s = new Section.Builder( fromPosition ).type( Section.TYPE_GRID_FILLER ).build();
-            s.setSectionedPosition( fromPosition + i );
-            sections.append( s.getSectionedPosition(), s );
+        if (n > 0) {
+            for (int i = 0; i < n; i++) {
+                Section s = Section.buildGridFiller( fromPosition, fromPosition + i );
+                sections.append( s.getSectionedPosition(), s );
+            }
         }
+        return n;
     }
 
     private void addHeader(Section section, int fromPosition) {
-        Log.v( "XXX", "add header " + fromPosition + " sp: " + fromPosition );
-        Section s = new Section.Builder( fromPosition ).withHeaderText( section.getTitle() )
-                .sticky( section.isSticky() ).withLayoutId( section.getLayoutId() )
-                .type( section.getType() ).containsAd( section.isContainsAd() ).build();
-        s.setSectionedPosition( fromPosition );
+        Section s = Section.buildHeader( section, fromPosition );
         sections.append( s.getSectionedPosition(), s );
     }
 
     private void addSingle(Section section, int fromPosition) {
-        Log.v( "XXX", "add single " + fromPosition + " sp: " + fromPosition );
-        Section s = new Section.Builder( fromPosition ).withHeaderText( section.getTitle() )
-                .sticky( section.isSticky() ).withLayoutId( section.getLayoutId() )
-                .type( section.getType() ).containsAd( section.isContainsAd() ).build();
-        s.setSectionedPosition( fromPosition );
+        Section s = Section.buildSingle( section, fromPosition );
         sections.append( s.getSectionedPosition(), s );
     }
 
-    private void addHeaderFillers(int number, int fromPosition) {
-        if (number <= 0) {
-            return;
+    private int addHeaderFillers(Section section, int fromPosition) {
+        int n = numColumns - 1;
+        if (n == numColumns) {
+            n = 0;
         }
-        for (int i = 0; i < number; i++) {
-            Log.v( "XXX", "add header filler " + fromPosition + " sp: " + (fromPosition + i) );
-            Section s = new Section.Builder( fromPosition ).type( Section.TYPE_HEADER_FILLER ).build();
-            s.setSectionedPosition( s.getPosition() + i );
-            sections.append( s.getSectionedPosition(), s );
+        if (n > 0) {
+            for (int i = 0; i < n; i++) {
+                Section s = Section.buildHeaderFiller( section, fromPosition, fromPosition + i );
+                sections.append( s.getSectionedPosition(), s );
+            }
         }
+        return n;
     }
 
     public int positionToSectionedPosition(int position) {
@@ -321,7 +302,7 @@ public class SimpleSectionedGridAdapter extends BaseAdapter implements PinnedSec
                     convertView = getHeaderView( section, parent );
                     break;
                 case Section.TYPE_HEADER_FILLER:
-                    convertView = getHeaderFillerView( parent );
+                    convertView = getHeaderFillerView( section, parent );
                     break;
                 case Section.TYPE_GRID_FILLER:
                     convertView = getGridFillerView();
@@ -331,8 +312,10 @@ public class SimpleSectionedGridAdapter extends BaseAdapter implements PinnedSec
             }
         } else {
             convertView = baseAdapter.getView( sectionedPositionToPosition( position ), convertView, parent );
-            gridFillerHeight = View.MeasureSpec.makeMeasureSpec(
-                    convertView.getMeasuredHeight(), View.MeasureSpec.EXACTLY );
+            int height = convertView.getMeasuredHeight();
+            if (height != 0) {
+                gridFillerHeight = View.MeasureSpec.makeMeasureSpec( height, View.MeasureSpec.EXACTLY );
+            }
         }
         return convertView;
     }
@@ -341,28 +324,30 @@ public class SimpleSectionedGridAdapter extends BaseAdapter implements PinnedSec
 
     private View getSingleView(Section section, ViewGroup parent) {
         View singleView;
-        if (section.getLayoutId() == 0) {
-            return makeSureIsCorrectConvertedView( parent );
+        if (section.isContainsAd()) {
+            singleView = createAndCacheAdView( section, parent );
         } else {
-            if (section.isContainsAd()) {
-                singleView = createAndCacheAdView( section, parent );
-            } else {
-                singleView = makeSureIsCorrectConvertedView( parent, section.getLayoutId() );
-            }
+            singleView = makeSureIsCorrectConvertedView( parent, section.getLayoutId() );
         }
         if (section.isContainsAd() && this instanceof AdProviderAdapter) {
             ((AdProviderAdapter) this).injectAd( section, singleView );
+        }
+        if (singleView instanceof HeaderLayout) {
+            log( "Setting height for single" );
+            ((HeaderLayout) singleView).setMeasureTarget( gridFillerHeight );
         }
         singleView.setContentDescription( "Single" );
         return singleView;
     }
 
-    private View getHeaderFillerView(ViewGroup parent) {
-        View convertView = makeSureIsCorrectConvertedView( parent );
-        HeaderLayout header = (HeaderLayout) convertView.findViewById( headerLayoutId );
-        TextView view = (TextView) convertView.findViewById( headerId );
-        view.setText( "" );
-        header.setHeaderWidth( 0 );
+    private View getHeaderFillerView(Section section, ViewGroup parent) {
+        View convertView = makeSureIsCorrectConvertedView( parent, section.getLayoutId() );
+        setHeaderSize( section, convertView, 0 );
+        View tv = convertView.findViewById( section.getTextViewId() );
+        if (tv != null) {
+            TextView view = (TextView) tv;
+            view.setText( "" );
+        }
         convertView.setContentDescription( "Header filler" );
         return convertView;
     }
@@ -370,7 +355,7 @@ public class SimpleSectionedGridAdapter extends BaseAdapter implements PinnedSec
     private View getHeaderView(Section section, ViewGroup parent) {
         View convertView;
         if (section.getLayoutId() == 0) {
-            convertView = makeSureIsCorrectConvertedView( parent );
+            convertView = makeSureIsCorrectConvertedView( parent, section.getLayoutId() );
         } else {
             if (section.isContainsAd()) {
                 convertView = createAndCacheAdView( section, parent );
@@ -378,13 +363,11 @@ public class SimpleSectionedGridAdapter extends BaseAdapter implements PinnedSec
                 convertView = makeSureIsCorrectConvertedView( parent, section.getLayoutId() );
             }
         }
-        HeaderLayout header = (HeaderLayout) convertView.findViewById( headerLayoutId );
-        if (header != null) {
-            if (section.getTitle() != null) {
-                TextView view = (TextView) convertView.findViewById( headerId );
-                view.setText( section.getTitle() );
-            }
-            header.setHeaderWidth( getHeaderSize() );
+        setHeaderSize( section, convertView , getHeaderSize());
+        View tv = convertView.findViewById( section.getTextViewId() );
+        if (tv != null) {
+            TextView view = (TextView) tv;
+            view.setText( section.getTitle() );
         }
         if (section.isContainsAd() && this instanceof AdProviderAdapter) {
             convertView.setMinimumWidth( getHeaderSize() );
@@ -392,6 +375,14 @@ public class SimpleSectionedGridAdapter extends BaseAdapter implements PinnedSec
         }
         convertView.setContentDescription( "Header" );
         return convertView;
+    }
+
+    private void setHeaderSize(Section section, View convertView, int width) {
+        View h = convertView.findViewById( section.getContainerViewId() );
+        if (h != null) {
+            HeaderLayout header = (HeaderLayout) h;
+            header.setHeaderWidth( width );
+        }
     }
 
     private View createAndCacheAdView(Section section, ViewGroup parent) {
@@ -410,7 +401,6 @@ public class SimpleSectionedGridAdapter extends BaseAdapter implements PinnedSec
         if (fillerView == null) {
             fillerView = new FillerView( context );
         }
-        Log.v( "XXX", "Measure grid filler: " + gridFillerHeight );
         fillerView.setMeasureTarget( gridFillerHeight );
         fillerView.setContentDescription( "Filler view" );
         return fillerView;
@@ -418,10 +408,6 @@ public class SimpleSectionedGridAdapter extends BaseAdapter implements PinnedSec
 
     private View makeSureIsCorrectConvertedView(ViewGroup parent, int layoutId) {
         return layoutInflater.inflate( layoutId, parent, false );
-    }
-
-    private View makeSureIsCorrectConvertedView(ViewGroup parent) {
-        return makeSureIsCorrectConvertedView( parent, sectionResourceId );
     }
 
     @Override
@@ -443,5 +429,9 @@ public class SimpleSectionedGridAdapter extends BaseAdapter implements PinnedSec
     public static interface AdProviderAdapter {
 
         void injectAd(Section section, View convertView);
+    }
+
+    private void log(String message) {
+        Log.v( "ASH", message );
     }
 }

@@ -34,19 +34,15 @@ import dev.dworks.libs.astickyheader.ui.PinnedSectionListView.PinnedSectionListA
 
 public class SimpleSectionedListAdapter extends BaseAdapter implements PinnedSectionListAdapter {
 
-    private int mHeaderId;
     private boolean mValid = true;
-    private int mSectionResourceId;
     private LayoutInflater mLayoutInflater;
     private ListAdapter mBaseAdapter;
     private SparseArray<Section> mSections = new SparseArray<Section>();
 
-    public SimpleSectionedListAdapter(Context context, int sectionResourceId, int headerId,
+    public SimpleSectionedListAdapter(Context context,
                                       BaseAdapter baseAdapter) {
         mLayoutInflater = (LayoutInflater) context.getSystemService( Context.LAYOUT_INFLATER_SERVICE );
-        mSectionResourceId = sectionResourceId;
         mBaseAdapter = baseAdapter;
-        mHeaderId = headerId;
         mBaseAdapter.registerDataSetObserver( new DataSetObserver() {
             @Override
             public void onChanged() {
@@ -158,15 +154,16 @@ public class SimpleSectionedListAdapter extends BaseAdapter implements PinnedSec
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if (isSectionHeaderPosition( position )) {
+            Section s = mSections.get( position );
             TextView view;
             if (null == convertView) {
-                convertView = mLayoutInflater.inflate( mSectionResourceId, parent, false );
+                convertView = mLayoutInflater.inflate( s.getLayoutId(), parent, false );
             } else {
-                if (null == convertView.findViewById( mHeaderId )) {
-                    convertView = mLayoutInflater.inflate( mSectionResourceId, parent, false );
+                if (null == convertView.findViewById( s.getTextViewId() )) {
+                    convertView = mLayoutInflater.inflate( s.getLayoutId(), parent, false );
                 }
             }
-            view = (TextView) convertView.findViewById( mHeaderId );
+            view = (TextView) convertView.findViewById( s.getTextViewId() );
             view.setText( mSections.get( position ).getTitle() );
             return convertView;
         } else {

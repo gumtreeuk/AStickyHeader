@@ -3,13 +3,13 @@
     android:id="@+id/header_layout"
     android:layout_width="fill_parent"
     android:background="@color/red"
-    android:layout_height="50dp" >
+    android:layout_height="63dp" >
 
     <TextView
         android:id="@+id/header"
 		style="@style/Widget.Sherlock.TextView.Holo.ListSeparator.Light"
         android:layout_width="match_parent"
-        android:layout_height="21dp"
+        android:layout_height="63dp"
         android:singleLine="true"
         android:textAllCaps="true"
         android:textColor="@android:color/black"

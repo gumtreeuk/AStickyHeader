@@ -18,6 +18,7 @@ package dev.dworks.libs.astickyheader.ui;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.widget.FrameLayout;
 
 public class HeaderLayout extends FrameLayout {
@@ -45,6 +46,7 @@ public class HeaderLayout extends FrameLayout {
     	int widthMeasureSpecNew = mHeaderWidth == 1 
     			? widthMeasureSpec 
     			: MeasureSpec.makeMeasureSpec(mHeaderWidth, MeasureSpec.getMode(widthMeasureSpec));
+        Log.v( "ASH", "onMeasure : " + widthMeasureSpecNew );
         if(height != 0) {
             super.onMeasure(widthMeasureSpecNew, height);
             return;

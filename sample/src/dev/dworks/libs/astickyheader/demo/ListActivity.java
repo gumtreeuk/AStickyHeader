@@ -36,10 +36,11 @@ public class ListActivity extends CacheActivity {
         list = (ListView) findViewById( R.id.list );
         mAdapter = new ImageAdapter( this );
         for (int i = 0; i < mHeaderPositions.length; i++) {
-            sections.add( new Section.Builder( mHeaderPositions[i] ).withHeaderText( mHeaderNames[i] ).build() );
+            sections.add( new Section.Builder( mHeaderPositions[i], R.layout.list_item_header )
+                                  .withHeaderText( R.id.header_layout, R.id.header, mHeaderNames[i] ).build() );
         }
         SimpleSectionedListAdapter simpleSectionedGridAdapter
-                = new SimpleSectionedListAdapter( this, R.layout.list_item_header, R.id.header, mAdapter );
+                = new SimpleSectionedListAdapter( this, mAdapter );
         simpleSectionedGridAdapter.setSections( sections.toArray( new Section[0] ) );
         list.setAdapter( simpleSectionedGridAdapter );
     }

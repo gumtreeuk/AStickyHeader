@@ -8,9 +8,8 @@ import java.util.List;
 
 public class DynamicSectionedListAdapter extends SimpleSectionedListAdapter {
 
-    public DynamicSectionedListAdapter(Context context, int sectionResourceId, int headerId,
-                                       BaseAdapter baseAdapter) {
-        super( context, sectionResourceId, headerId, baseAdapter );
+    public DynamicSectionedListAdapter(Context context, BaseAdapter baseAdapter) {
+        super( context, baseAdapter );
     }
 
     private Section[] sections;
