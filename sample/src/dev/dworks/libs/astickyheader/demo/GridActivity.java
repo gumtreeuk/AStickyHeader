@@ -54,16 +54,17 @@ public class GridActivity extends CacheActivity {
                               .type( Section.TYPE_SINGLE )
                               .sticky( false ).build() );
         sections.add( new Section.Builder( 17, R.layout.grid_item_header_red )
-                              .withHeaderText( R.id.header_layout, R.id.header, "leaderboard 1" )
+                              .withHeaderText( R.id.header_layout, R.id.header, "this is a long text leaderboard to "
+                                                                                + "understand 1" )
                               .sticky( false ).build() );
         sections.add( new Section.Builder( 23, R.layout.grid_item_header_red )
-                              .withHeaderText( R.id.header_layout, R.id.header, "leaderboard 2" )
+                              .withHeaderText( R.id.header_layout, R.id.header, "l 2" )
                               .sticky( false ).build() );
         sections.add( new Section.Builder( 28, R.layout.grid_item_header_red )
-                              .withHeaderText( R.id.header_layout, R.id.header, "leaderboard 3" )
+                              .withHeaderText( R.id.header_layout, R.id.header, "l 3" )
                               .sticky( false ).build() );
         sections.add( new Section.Builder( 88, R.layout.grid_item_header_red )
-                              .withHeaderText( R.id.header_layout, R.id.header, "leaderboard 4" )
+                              .withHeaderText( R.id.header_layout, R.id.header, "l 4" )
                               .sticky( false ).build() );
         simpleSectionedGridAdapter.setSections( sections.toArray( new Section[0] ) );
 

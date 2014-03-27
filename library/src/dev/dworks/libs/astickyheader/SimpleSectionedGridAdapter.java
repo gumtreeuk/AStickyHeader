@@ -18,7 +18,6 @@ package dev.dworks.libs.astickyheader;
 
 import android.content.Context;
 import android.database.DataSetObserver;
-import android.util.Log;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -48,11 +47,6 @@ public class SimpleSectionedGridAdapter extends BaseAdapter implements PinnedSec
     private Context context;
     private int numColumns;
     private int width;
-    private int columnWidth;
-    private int horizontalSpacing;
-    private int stretchMode;
-    private int requestedColumnWidth;
-    private int requestedHorizontalSpacing;
     private PinnedSectionGridView gridView;
     private int gridFillerHeight;
 
@@ -84,53 +78,15 @@ public class SimpleSectionedGridAdapter extends BaseAdapter implements PinnedSec
             throw new IllegalArgumentException( "Does your grid view extends PinnedSectionGridView?" );
         }
         this.gridView = (PinnedSectionGridView) gridView;
-        stretchMode = this.gridView.getStretchMode();
         width = this.gridView.getWidth() - (this.gridView.getPaddingLeft() + this.gridView.getPaddingRight());
         numColumns = this.gridView.getNumColumns();
-        requestedColumnWidth = this.gridView.getColumnWidth();
-        requestedHorizontalSpacing = this.gridView.getHorizontalSpacing();
     }
 
-    private int getHeaderSize() {
+    private int getHeaderWidth() {
         if (width != gridView.getWidth()) {
-            stretchMode = gridView.getStretchMode();
             width = gridView.getWidth() - (gridView.getPaddingLeft() + gridView.getPaddingRight());
-            numColumns = gridView.getNumColumns();
-            requestedColumnWidth = gridView.getColumnWidth();
-            requestedHorizontalSpacing = gridView.getHorizontalSpacing();
         }
-
-        int spaceLeftOver = width - (numColumns * requestedColumnWidth) -
-                            ((numColumns - 1) * requestedHorizontalSpacing);
-        switch (stretchMode) {
-            case GridView.NO_STRETCH:            // Nobody stretches
-                width -= spaceLeftOver;
-                columnWidth = requestedColumnWidth;
-                horizontalSpacing = requestedHorizontalSpacing;
-                break;
-
-            case GridView.STRETCH_COLUMN_WIDTH:
-                columnWidth = requestedColumnWidth + spaceLeftOver / numColumns;
-                horizontalSpacing = requestedHorizontalSpacing;
-                break;
-
-            case GridView.STRETCH_SPACING:
-                columnWidth = requestedColumnWidth;
-                if (numColumns > 1) {
-                    horizontalSpacing = requestedHorizontalSpacing +
-                                        spaceLeftOver / (numColumns - 1);
-                } else {
-                    horizontalSpacing = requestedHorizontalSpacing + spaceLeftOver;
-                }
-                break;
-
-            case GridView.STRETCH_SPACING_UNIFORM:
-                columnWidth = requestedColumnWidth;
-                horizontalSpacing = requestedHorizontalSpacing;
-                width = width - spaceLeftOver + (2 * horizontalSpacing);
-                break;
-        }
-        return width + ((numColumns - 1) * (columnWidth + horizontalSpacing));
+        return width;
     }
 
     public void setSections(Section[] sections) {
@@ -147,11 +103,11 @@ public class SimpleSectionedGridAdapter extends BaseAdapter implements PinnedSec
                 int n = addGridFillers( index );
                 offset = offset + n;
                 index = index + n;
-                n = addHeaderFillers( section, index );
-                offset = offset + n;
-                index = index + n;
                 addHeader( section, index );
                 offset++;
+                index++;
+                n = addHeaderFillers( section, index );
+                offset = offset + n;
             }
         }
         notifyDataSetInvalidated();
@@ -333,7 +289,6 @@ public class SimpleSectionedGridAdapter extends BaseAdapter implements PinnedSec
             ((AdProviderAdapter) this).injectAd( section, singleView );
         }
         if (singleView instanceof HeaderLayout) {
-            log( "Setting height for single" );
             ((HeaderLayout) singleView).setMeasureTarget( gridFillerHeight );
         }
         singleView.setContentDescription( "Single" );
@@ -363,17 +318,17 @@ public class SimpleSectionedGridAdapter extends BaseAdapter implements PinnedSec
                 convertView = makeSureIsCorrectConvertedView( parent, section.getLayoutId() );
             }
         }
-        setHeaderSize( section, convertView , getHeaderSize());
+        setHeaderSize( section, convertView, getHeaderWidth() );
         View tv = convertView.findViewById( section.getTextViewId() );
         if (tv != null) {
             TextView view = (TextView) tv;
             view.setText( section.getTitle() );
         }
         if (section.isContainsAd() && this instanceof AdProviderAdapter) {
-            convertView.setMinimumWidth( getHeaderSize() );
             ((AdProviderAdapter) this).injectAd( section, convertView );
         }
         convertView.setContentDescription( "Header" );
+        convertView.invalidate();
         return convertView;
     }
 
@@ -429,9 +384,5 @@ public class SimpleSectionedGridAdapter extends BaseAdapter implements PinnedSec
     public static interface AdProviderAdapter {
 
         void injectAd(Section section, View convertView);
-    }
-
-    private void log(String message) {
-        Log.v( "ASH", message );
     }
 }

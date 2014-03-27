@@ -19,7 +19,6 @@ package dev.dworks.libs.astickyheader.ui;
 import android.content.Context;
 import android.database.DataSetObserver;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.view.View;
