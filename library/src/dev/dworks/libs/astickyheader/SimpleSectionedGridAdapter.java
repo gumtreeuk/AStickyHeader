@@ -92,22 +92,36 @@ public class SimpleSectionedGridAdapter extends BaseAdapter implements PinnedSec
     public void setSections(Section[] sections) {
         this.sections.clear();
         sortSections( sections );
+
         int offset = 0;
+        int itemCount = getWrappedAdapter().getCount();
         for (int i = 0; i < sections.length; i++) {
             Section section = sections[i];
             int index = section.getPosition() + offset;
-            if (section.isSingle()) {
-                addSingle( section, index );
-                offset++;
-            } else {
-                int n = addGridFillers( index );
-                offset = offset + n;
-                index = index + n;
-                addHeader( section, index );
-                offset++;
-                index++;
-                n = addHeaderFillers( section, index );
-                offset = offset + n;
+            if (section.getPosition() <= itemCount) {
+                if (section.isSingle()) {
+                    addSingle( section, index );
+                    offset++;
+                } else {
+                    int n = getNumberOfItemToEndOfRow(index);
+                    if(section.isFillRow() && section.getPosition() + n <= itemCount) {
+                        index = index + n;
+                        addHeader( section, index );
+                        offset++;
+                        index++;
+                        n = addHeaderFillers( section, index );
+                        offset = offset + n;
+                    } else {
+                        addGridFillers( n, index );
+                        offset = offset + n;
+                        index = index + n;
+                        addHeader( section, index );
+                        offset++;
+                        index++;
+                        n = addHeaderFillers( section, index );
+                        offset = offset + n;
+                    }
+                }
             }
         }
         notifyDataSetInvalidated();
@@ -125,18 +139,14 @@ public class SimpleSectionedGridAdapter extends BaseAdapter implements PinnedSec
         } );
     }
 
-    private int addGridFillers(int fromPosition) {
-        int n = numColumns * (1 + fromPosition / numColumns) - fromPosition;
-        if (n == numColumns) {
-            n = 0;
+    private void addGridFillers(int number, int fromPosition) {
+        if (number <= 0) {
+            return;
         }
-        if (n > 0) {
-            for (int i = 0; i < n; i++) {
-                Section s = Section.buildGridFiller( fromPosition, fromPosition + i );
-                sections.append( s.getSectionedPosition(), s );
-            }
+        for (int i = 0; i < number; i++) {
+            Section s = Section.buildGridFiller( fromPosition, fromPosition + i );
+            sections.append( s.getSectionedPosition(), s );
         }
-        return n;
     }
 
     private void addHeader(Section section, int fromPosition) {
@@ -379,6 +389,14 @@ public class SimpleSectionedGridAdapter extends BaseAdapter implements PinnedSec
 
     protected ListAdapter getWrappedAdapter() {
         return baseAdapter;
+    }
+
+    public int getNumberOfItemToEndOfRow(int fromPosition) {
+        int n = numColumns * (1 + fromPosition / numColumns) - fromPosition;
+        if (n == numColumns) {
+            n = 0;
+        }
+        return n;
     }
 
     public static interface AdProviderAdapter {

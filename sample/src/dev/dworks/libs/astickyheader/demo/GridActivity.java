@@ -57,15 +57,23 @@ public class GridActivity extends CacheActivity {
                               .withHeaderText( R.id.header_layout, R.id.header, "this is a long text leaderboard to "
                                                                                 + "understand 1" )
                               .sticky( false ).build() );
-        sections.add( new Section.Builder( 23, R.layout.grid_item_header_red )
-                              .withHeaderText( R.id.header_layout, R.id.header, "l 2" )
-                              .sticky( false ).build() );
+        sections.add( new Section.Builder( 22, R.layout.grid_item_header_red )
+                              .withHeaderText( R.id.header_layout, R.id.header, "l 2 fill row" )
+                              .fillRowIfPossible().sticky( false ).build() );
         sections.add( new Section.Builder( 28, R.layout.grid_item_header_red )
                               .withHeaderText( R.id.header_layout, R.id.header, "l 3" )
                               .sticky( false ).build() );
         sections.add( new Section.Builder( 88, R.layout.grid_item_header_red )
                               .withHeaderText( R.id.header_layout, R.id.header, "l 4" )
                               .sticky( false ).build() );
+
+        sections.add( new Section.Builder( 100, R.layout.grid_item_header_red )
+                              .withHeaderText( R.id.header_layout, R.id.header, "last element, like footer" )
+                              .sticky( false ).build() );
+        sections.add( new Section.Builder( 150, R.layout.grid_item_header_red )
+                              .withHeaderText( R.id.header_layout, R.id.header, "should not be visible" )
+                              .sticky( false ).build() );
+
         simpleSectionedGridAdapter.setSections( sections.toArray( new Section[0] ) );
 
         grid.setAdapter( simpleSectionedGridAdapter );

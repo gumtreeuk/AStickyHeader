@@ -16,6 +16,7 @@ public class Section {
     private boolean containsAd;
     private int containerViewId;
     private int textViewId;
+    private boolean fillRow;
 
     private Section(int position) {
         this.position = position;
@@ -97,6 +98,14 @@ public class Section {
         this.containerViewId = containerViewId;
     }
 
+    public boolean isFillRow() {
+        return fillRow;
+    }
+
+    public void setFillRow(boolean fillRow) {
+        this.fillRow = fillRow;
+    }
+
     public static class Builder {
 
         private final Section section;
@@ -133,6 +142,11 @@ public class Section {
             return this;
         }
 
+        public Builder fillRowIfPossible() {
+            section.setFillRow( true );
+            return this;
+        }
+
         public Builder containsAd(boolean value) {
             section.setContainsAd( value );
             return this;
@@ -157,6 +171,7 @@ public class Section {
                 .type( original.getType() )
                 .containsAd( original.isContainsAd() )
                 .build();
+        s.setFillRow( original.isFillRow() );
         s.setSectionedPosition( fromPosition );
         return s;
     }
